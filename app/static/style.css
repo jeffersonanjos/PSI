@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --color-ink: #0F1412;
-    --color-paper: #FFFFFF;
-    --color-bg-soft: #F2E9CE;
-    --color-primary-700: #263530;
-    --color-primary-600: #577343;
-    --color-primary-500: #688C4F;
-    --color-accent-500: #A67C49;
+    --color-ink: #0E1A2A;          /* Deep navy for text */
+    --color-paper: #FFFFFF;        /* Paper white */
+    --color-bg-soft: #EAF2FB;      /* Soft blue background */
+    --color-primary-700: #0B4F8C;  /* Dark blue */
+    --color-primary-600: #1565C0;  /* Primary blue */
+    --color-primary-500: #1E88E5;  /* Lighter primary */
+    --color-accent-500: #F5B041;   /* Warm accent (golden) */
 
     --shadow-rgb: 0, 0, 0;
     --ink-muted: rgba(15, 20, 18, 0.8);
@@ -22,24 +22,12 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: url('/static/img/background.jpg') no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(180deg, #0F2747 0%, #0A1D36 100%) fixed; /* blue gradient */
     min-height: 100vh;
     color: var(--color-ink);
     line-height: 1.6;
     display: flex;
     flex-direction: column;
-}
-
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: -1;
 }
 
 .container {
@@ -54,7 +42,7 @@ main {
 }
 
 .navbar {
-    background: rgba(0, 0, 0, 0.9) !important;
+    background: rgba(10, 29, 54, 0.9) !important; /* deep blue */
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
@@ -73,7 +61,7 @@ main {
 }
 
 .navbar-brand:hover {
-    color: var(--color-accent-500) !important;
+    color: var(--color-primary-500) !important;
 }
 
 .nav-link {
@@ -84,7 +72,7 @@ main {
 }
 
 .nav-link:hover {
-    color: var(--color-accent-500) !important;
+    color: var(--color-primary-500) !important;
     transform: translateY(-2px);
 }
 
@@ -95,7 +83,7 @@ main {
     height: 2px;
     bottom: -5px;
     left: 50%;
-    background: var(--color-accent-500);
+    background: var(--color-primary-500);
     transition: all 0.3s ease;
     transform: translateX(-50%);
 }
@@ -105,7 +93,7 @@ main {
 }
 
 .dropdown-menu {
-    background: rgba(0, 0, 0, 0.95) !important;
+    background: rgba(10, 29, 54, 0.96) !important;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(var(--shadow-rgb), 0.5);
@@ -122,13 +110,13 @@ main {
 }
 
 .dropdown-item:hover {
-    background: rgba(166, 124, 73, 0.18) !important;
-    color: var(--color-accent-500) !important;
+    background: rgba(30, 136, 229, 0.18) !important;
+    color: var(--color-primary-500) !important;
     transform: translateX(5px);
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: rgba(255, 255, 255, 0.98) !important;
     border: none;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(var(--shadow-rgb), 0.2);
@@ -167,7 +155,7 @@ main {
 }
 
 .card-header {
-    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%) !important;
+    background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-600) 100%) !important;
     color: white;
     border: none;
     font-weight: 600;
@@ -221,14 +209,14 @@ main {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-500) 100%);
+    background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 100%);
     color: white;
-    box-shadow: 0 5px 15px rgba(88, 122, 80, 0.35);
+    box-shadow: 0 5px 15px rgba(16, 64, 141, 0.35);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(88, 122, 80, 0.5);
+    box-shadow: 0 10px 25px rgba(16, 64, 141, 0.5);
     color: white;
 }
 
@@ -247,7 +235,7 @@ main {
 .btn-success {
     background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
     color: white;
-    box-shadow: 0 5px 15px rgba(88, 122, 80, 0.35);
+    box-shadow: 0 5px 15px rgba(16, 64, 141, 0.25);
 }
 
 .btn-success:hover {
@@ -259,7 +247,7 @@ main {
 .btn-info {
     background: linear-gradient(135deg, var(--color-accent-500) 0%, var(--color-primary-600) 100%);
     color: white;
-    box-shadow: 0 5px 15px rgba(88, 122, 80, 0.35);
+    box-shadow: 0 5px 15px rgba(16, 64, 141, 0.25);
 }
 
 .btn-info:hover {
@@ -320,7 +308,7 @@ h2 {
 
 .form-control:focus {
     border-color: var(--color-primary-500);
-    box-shadow: 0 0 0 0.2rem rgba(104, 140, 79, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.25);
     background: var(--color-paper);
 }
 
@@ -337,7 +325,7 @@ h2 {
 }
 
 .jumbotron {
-    background: linear-gradient(135deg, rgba(87, 115, 67, 0.9) 0%, rgba(104, 140, 79, 0.9) 100%) !important;
+    background: linear-gradient(135deg, rgba(21, 101, 192, 0.9) 0%, rgba(30, 136, 229, 0.9) 100%) !important;
     border-radius: 20px;
     padding: 4rem 2rem;
     margin: 2rem 0;
@@ -418,7 +406,7 @@ h2 {
 }
 
 .list-group-item:hover {
-    background: rgba(104, 140, 79, 0.1) !important;
+    background: rgba(30, 136, 229, 0.08) !important;
     transform: translateX(10px);
     box-shadow: 0 5px 15px rgba(var(--shadow-rgb), 0.1);
 }
@@ -433,7 +421,7 @@ h2 {
 }
 
 footer {
-    background: rgba(0, 0, 0, 0.9) !important;
+    background: rgba(10, 29, 54, 0.9) !important;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-top: 1px solid rgba(255, 255, 255, 0.12);

@@ -35,7 +35,9 @@ def create():
         flash('Marco criado com sucesso!', 'success')
         return redirect(url_for('timeline.index'))
 
-    return render_template('timeline.html')
+    # GET: render index with create form expanded
+    items = TimelineModel.query.order_by(TimelineModel.ano.asc(), TimelineModel.id.asc()).all()
+    return render_template('timeline.html', items=items)
 
 
 @timeline_bp.route('/<int:item_id>/delete', methods=['POST'])
