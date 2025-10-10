@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Editar {{ content.title }} - SeriDigital{% endblock %}
+{% block title %}Editar {{ content.title }} - MemóriaViva{% endblock %}
 
 {% block content %}
 <div class="container mt-4 mb-4">
@@ -8,7 +8,7 @@
         <div class="col-md-8 mx-auto">
             <div class="card">
                 <div class="card-header">
-                    <h3>Editar Obra</h3>
+                    <h3>Editar Conteúdo</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
@@ -19,10 +19,12 @@
                             </div>
                             
                             <div class="col-md-4 mb-3">
-                                <label for="type" class="form-label">Tipo</label>
+                                <label for="type" class="form-label">Tipo de Conteúdo</label>
                                 <select class="form-select" id="type" name="type" required>
-                                    <option value="livro" {{ 'selected' if content.type == 'livro' else '' }}>Livro</option>
-                                    <option value="manifesto" {{ 'selected' if content.type == 'manifesto' else '' }}>Manifesto</option>
+                                    <option value="artigo" {{ 'selected' if content.type == 'artigo' else '' }}>Artigo</option>
+                                    <option value="foto" {{ 'selected' if content.type == 'foto' else '' }}>Foto</option>
+                                    <option value="entrevista" {{ 'selected' if content.type == 'entrevista' else '' }}>Entrevista</option>
+                                    <option value="relato" {{ 'selected' if content.type == 'relato' else '' }}>Relato</option>
                                 </select>
                             </div>
                         </div>
@@ -42,13 +44,13 @@
                         <div class="mb-3">
                             <label for="url" class="form-label">Link do YouTube</label>
                             <input type="url" class="form-control" id="url" name="url" value="{{ content.url or '' }}" placeholder="https://youtube.com/watch?v=...">
-                            <small class="text-muted">Link do YouTube relacionado à obra. Se fornecido sem thumbnail manual, a thumbnail do vídeo será usada.</small>
+                            <small class="text-muted">Link relacionado ao conteúdo. Se não informar uma capa, a do vídeo será usada quando aplicável.</small>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="file" class="form-label">Arquivo da Obra (PDF ou EPUB) {% if content.file_path or content.url %}(opcional){% endif %}</label>
-                            <input type="file" class="form-control" id="file" name="file" accept=".pdf,.epub">
-                            <small class="text-muted">Formatos aceitos: PDF, EPUB. Arquivo ou YouTube é obrigatório.</small>
+                            <label for="file" class="form-label">Arquivo (PDF, EPUB ou imagem) {% if content.file_path or content.url %}(opcional){% endif %}</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".pdf,.epub,.jpg,.jpeg,.png,.webp">
+                            <small class="text-muted">Formatos aceitos: PDF, EPUB, JPG, PNG, WEBP. Arquivo ou link é obrigatório.</small>
                         </div>
                         
                         <div class="row">

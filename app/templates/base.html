@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SeriDigital{% endblock %}</title>
+    <title>{% block title %}MemóriaViva — Acervo Digital da Cultura Popular{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/cacto.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,7 +13,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">SeriDigital</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">MemóriaViva</a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -25,7 +25,10 @@
                         <a class="nav-link" href="{{ url_for('main.index') }}">Início</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('content.list_content') }}">Obras</a>
+                        <a class="nav-link" href="{{ url_for('content.list_content') }}">Conteúdos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('timeline.index') }}">Linha do Tempo</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('posts.list_posts') }}">Posts</a>
@@ -85,10 +88,10 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5>SeriDigital</h5>
+                    <h5>MemóriaViva — Acervo Digital da Cultura Popular</h5>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p>&copy; 2025 SeriDigital</p>
+                    <p>&copy; 2025 MemóriaViva</p>
                 </div>
             </div>
         </div>
