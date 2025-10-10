@@ -1,7 +1,7 @@
 # app/blueprints/content.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from ..models import Content, Rating, db
+from ..models import Content, Rating, db, Category, ContentCategory
 import os
 from werkzeug.utils import secure_filename
 
@@ -29,20 +29,25 @@ def list_content():
 @content_bp.route('/buscar', methods=['GET'])
 @login_required
 def buscar_obra():
-    termo = request.args.get('q', '').strip()  # captura o parâmetro de busca 'q' da URL
+    termo = (request.args.get('q') or '').strip()
+    category_id = request.args.get('category_id', type=int)
 
+    query = Content.query
     if termo:
-        # Busca mais abrangente: título OU descrição
-        resultados = Content.query.filter(
+        query = query.filter(
             db.or_(
                 Content.title.ilike(f'%{termo}%'),
                 Content.description.ilike(f'%{termo}%')
             )
-        ).order_by(Content.created_at.desc()).all()
-    else:
-        resultados = []
+        )
+    if category_id:
+        query = query.join(ContentCategory, Content.id == ContentCategory.content_id)
+        query = query.filter(ContentCategory.category_id == category_id)
 
-    return render_template('buscar.html', resultados=resultados, termo=termo)
+    resultados = query.order_by(Content.created_at.desc()).all() if (termo or category_id) else []
+
+    categorias = Category.query.order_by(Category.name.asc()).all()
+    return render_template('buscar.html', resultados=resultados, termo=termo, categorias=categorias, selected_category_id=category_id)
 
 
 @content_bp.route('/<int:content_id>')

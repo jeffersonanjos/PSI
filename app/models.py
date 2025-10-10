@@ -1,7 +1,8 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from .extensions import bcrypt
+from werkzeug.security import check_password_hash as werkzeug_check_password_hash
 
 from alembic import op
 import sqlalchemy as sa
@@ -23,6 +24,8 @@ class Usuario(UserMixin, db.Model):
     _senha_hash = db.Column('usr_password', db.String(255), nullable=False)
     profile_picture = db.Column('usr_profile_picture', db.String(255))
     biografia = db.Column('usr_bio', db.Text)
+    # Papéis: visitante, pesquisador, artista, admin
+    role = db.Column('usr_role', db.String(32), default='visitante', nullable=False)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     criado_em = db.Column('usr_created_at', db.DateTime, default=datetime.utcnow, nullable=False)
 
@@ -50,10 +53,21 @@ class Usuario(UserMixin, db.Model):
 
     @senha.setter
     def senha(self, senha_plaintext):
-        self._senha_hash = generate_password_hash(senha_plaintext)
+        # Usa Flask-Bcrypt; armazena como string
+        self._senha_hash = bcrypt.generate_password_hash(senha_plaintext).decode('utf-8')
 
     def checar_senha(self, senha_plaintext):
-        return check_password_hash(self._senha_hash, senha_plaintext)
+        try:
+            if bcrypt.check_password_hash(self._senha_hash, senha_plaintext):
+                return True
+        except Exception:
+            # Hash pode não ser Bcrypt; tentar fallback
+            pass
+        # Fallback para hashes existentes (ex.: werkzeug pbkdf2)
+        try:
+            return werkzeug_check_password_hash(self._senha_hash, senha_plaintext)
+        except Exception:
+            return False
     
     # Métodos para gerenciar bloqueios de comunidades
     def block_community(self, community_id, reason=None):
@@ -310,6 +324,7 @@ class Content(db.Model):
     file_path = db.Column('cnt_file_path', db.String(500))  # caminho do arquivo PDF/EPUB
     file_type = db.Column('cnt_file_type', db.String(10))  # pdf ou epub
     created_at = db.Column('cnt_created_at', db.DateTime, default=datetime.utcnow, nullable=False)
+    views_count = db.Column('cnt_views_count', db.Integer, default=0, nullable=False)
 
     # Relacionamentos
     comentarios = db.relationship('Comment', backref='content', lazy='dynamic')
@@ -326,6 +341,37 @@ class Category(db.Model):
 
     # Relacionamento
     conteudos = db.relationship('ContentCategory', backref='category', lazy='dynamic')
+
+
+class Media(db.Model):
+    __tablename__ = 'tb_media'
+
+    id = db.Column('med_id', db.Integer, primary_key=True)
+    tipo = db.Column('med_type', db.String(20), nullable=False)  # imagem, áudio, vídeo
+    caminho_arquivo = db.Column('med_path', db.String(500), nullable=False)
+    descricao = db.Column('med_description', db.Text)
+
+
+class Event(db.Model):
+    __tablename__ = 'tb_events'
+
+    id = db.Column('evt_id', db.Integer, primary_key=True)
+    titulo = db.Column('evt_title', db.String(255), nullable=False)
+    descricao = db.Column('evt_description', db.Text)
+    data_evento = db.Column('evt_date', db.Date)
+    local = db.Column('evt_location', db.String(255))
+    imagem = db.Column('evt_image', db.String(500))
+
+
+class Timeline(db.Model):
+    __tablename__ = 'tb_timeline'
+
+    id = db.Column('tl_id', db.Integer, primary_key=True)
+    ano = db.Column('tl_year', db.Integer, nullable=False)
+    titulo = db.Column('tl_title', db.String(255), nullable=False)
+    descricao = db.Column('tl_description', db.Text)
+    imagem = db.Column('tl_image', db.String(500))
+    created_at = db.Column('tl_created_at', db.DateTime, default=datetime.utcnow, nullable=False)
 
 class ContentCategory(db.Model):
     __tablename__ = 'tb_content_categories'
