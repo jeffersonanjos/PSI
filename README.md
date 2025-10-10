@@ -1,50 +1,113 @@
-# Seridigital
+Crie um projeto completo em Flask chamado “MemoriaViva”, com a seguinte proposta e estrutura técnica:
 
-Repositório oficial do projeto **Seridigital**, desenvolvido como parte da Prática Profissional dos alunos do IFRN Campus Caicó.
+🎯 OBJETIVO:
+Desenvolver uma plataforma web chamada **MemóriaViva — Acervo Digital da Cultura Popular**, voltada à preservação e divulgação de manifestações culturais regionais.  
+O sistema deve permitir cadastrar, visualizar e discutir **pessoas, tradições, histórias, eventos e patrimônios culturais**.
 
-## Alunos
+---
 
-- **Anna Júlia Galvão de Medeiros**
-- **Andrei Moisés Medeiros Delfino**
-- **Gustavo Henrique Alves de Melo**
-- **Jeffersson Dos Anjos Santos**
-- **Luiza Souza e Silva**
-- **Maria Rita Lucena Santos**
+### 🧩 ARQUITETURA E PADRÕES:
+- **Framework:** Flask (Python 3.10+)
+- **Banco:** SQLite + SQLAlchemy
+- **Migrações:** Alembic
+- **Frontend:** Bootstrap 5 + Jinja2
+- **Estrutura MVC:** (Models, Views/Controllers, Templates)
+- **Blueprints:** `auth`, `content`, `community`, `users`, `timeline`
+- **Extensões:** Flask-Login, Flask-WTF, Flask-Migrate, Flask-Bcrypt
+- **Organização:**
 
-## Funcionalidades Principais
 
-### Sistema de Comunidades
+---
 
-- ✅ Criação e gerenciamento de comunidades
-- ✅ Sistema de postagens
-- ✅ Sistema de bloqueio individual de comunidades
-- ✅ Filtragem de conteúdo sensível
-- ✅ Bloqueio global por administradores
-- ✅ Controle de acesso baseado em permissões
+### 📚 MÓDULOS E FUNCIONALIDADES:
 
-### Sistema de Usuários
+#### 1. **Auth (Autenticação e Usuários)**
+- Cadastro, login e logout
+- Criptografia de senha com Flask-Bcrypt
+- Papéis: `visitante`, `pesquisador`, `artista`, `admin`
+- Perfis com foto, biografia e lista de contribuições
 
-- ✅ Autenticação e registro
-- ✅ Perfis de usuário
-- ✅ Sistema de seguidores
-- ✅ Mensagens privadas
+#### 2. **Content (Conteúdos Culturais)**
+- CRUD de artigos, relatos, entrevistas e fotos
+- Cada conteúdo pertence a uma categoria (ex: “Tradições”, “Culinária”, “Artesanato”)
+- Possibilidade de anexar imagens (upload para `/static/uploads`)
+- Visualização com contador de visitas
 
-### Sistema de Conteúdo
+#### 3. **Categorias**
+- CRUD simples para organizar os conteúdos
+- Exemplo de categorias iniciais: Tradições, Festas, Culinária, Artesanato, Religião, Folclore
 
-- ✅ Gerenciamento de séries e filmes
-- ✅ Sistema de avaliações
-- ✅ Histórico de visualização
-- ✅ Categorização de conteúdo
+#### 4. **Comunidades**
+- Tópicos de discussão por tema cultural
+- Postagens e comentários encadeados
+- Associação opcional a uma categoria cultural
 
-## Tecnologias Utilizadas
+#### 5. **Linha do Tempo**
+- CRUD de marcos históricos (ano, evento, descrição, imagem opcional)
+- Exibição cronológica em ordem crescente
+- Página `/timeline` com cards Bootstrap estilizados
 
-- **Backend**: Flask, SQLAlchemy, Flask-Login
-- **Banco de Dados**: SQLite
-- **Frontend**: Bootstrap, HTML/CSS/JavaScript
-- **Migrações**: Alembic
+---
 
-## Instalação e Execução
+### 💾 MODELOS DO BANCO (SQLAlchemy):
 
-1. Clone o repositório
-2. Instale as dependências: `pip install -r requirements.txt`
-3. Execute a aplicação: `python run.py`
+**User**
+- id, nome, email, senha_hash, papel, bio, foto_perfil
+
+**Article**
+- id, titulo, conteudo, categoria_id, autor_id, data_publicacao, midia_id
+
+**Category**
+- id, nome, descricao
+
+**Media**
+- id, tipo (‘imagem’, ‘áudio’, ‘vídeo’), caminho_arquivo, descricao
+
+**Community**
+- id, nome, descricao, criador_id
+
+**Comment**
+- id, conteudo, autor_id, artigo_id (ou comunidade_id), data
+
+**Event**
+- id, titulo, descricao, data_evento, local, imagem
+
+**Timeline**
+- id, ano, titulo, descricao, imagem
+
+---
+
+### 🎨 INTERFACE E DESIGN:
+- Layout responsivo com **Bootstrap 5**
+- Navbar com acesso rápido: Início | Conteúdos | Comunidades | Linha do Tempo | Login
+- Templates principais:
+- `base.html` (layout geral)
+- `index.html` (página inicial com destaques culturais)
+- `content_list.html`, `content_detail.html`
+- `community_list.html`, `timeline.html`, `user_profile.html`
+- Tema: tons terrosos e bege (inspirado em cultura popular)
+- Ícones via **Bootstrap Icons**
+
+---
+
+### 🔐 SEGURANÇA:
+- Senhas com hash Bcrypt
+- Login protegido por Flask-Login
+- Controle de acesso por papel (decoradores)
+- Validação de formulários com Flask-WTF
+
+---
+
+### 📈 EXTRAS:
+- Busca por título e categoria
+- Contagem de visualizações por artigo
+- Painel do administrador para gerenciar usuários e categorias
+- Sistema de comentários com AJAX básico
+
+---
+
+🚀 Gere o código completo do projeto, com:
+- `run.py` configurado para rodar a aplicação
+- Inicialização do banco e migrações automáticas
+- Páginas base criadas com HTML + Bootstrap
+- Rotas básicas funcionais para cada módulo
