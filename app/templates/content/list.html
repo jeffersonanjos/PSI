@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Obras - SeriDigital{% endblock %}
+{% block title %}Conteúdos - MemóriaViva{% endblock %}
 
 {% block content %}
 <div class="container mt-4 mb-4">
     <div class="row">
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Catálogo de Obras</h2>
+                <h2>Catálogo de Conteúdos</h2>
                 {% if current_user.is_authenticated %}
-                    <a href="{{ url_for('content.create_content') }}" class="btn btn-primary">Adicionar Obra</a>
+                    <a href="{{ url_for('content.create_content') }}" class="btn btn-primary">Adicionar Conteúdo</a>
                 {% endif %}
             </div>
             
@@ -77,12 +77,12 @@
                 </div>
             {% else %}
                 <div class="alert alert-info">
-                    <h4>Nenhuma obra encontrada</h4>
-                    <p>Ainda não há obras cadastradas na plataforma.</p>
+                    <h4>Nenhum conteúdo encontrado</h4>
+                    <p>Ainda não há conteúdos cadastrados na plataforma.</p>
                     {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('content.create_content') }}" class="btn btn-primary">Seja o primeiro a adicionar uma obra!</a>
+                        <a href="{{ url_for('content.create_content') }}" class="btn btn-primary">Seja o primeiro a adicionar um conteúdo!</a>
                     {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Faça login para adicionar obras</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Faça login para adicionar conteúdos</a>
                     {% endif %}
                 </div>
             {% endif %}
