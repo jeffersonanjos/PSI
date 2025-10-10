@@ -4,7 +4,7 @@ import os
 from flask_migrate import Migrate
 from .config import BaseConfig
 from .models import db
-from .extensions import login_manager
+from .extensions import login_manager, bcrypt
 
 def create_app():
     app = Flask(__name__)
@@ -42,6 +42,7 @@ def create_app():
 
     # login
     login_manager.init_app(app)
+    bcrypt.init_app(app)
 
     # blueprints
     from .blueprints.main import main_bp
@@ -49,6 +50,8 @@ def create_app():
     from .blueprints.users import users_bp
     from .blueprints.posts import posts_bp
     from .blueprints.content import content_bp
+    from .blueprints.timeline import timeline_bp
+    from .blueprints.categories import categories_bp
     from .blueprints.redirects import redirects_bp
     from .blueprints.chat import chat_bp
     from .blueprints.comunidade import comunidade_bp
@@ -63,5 +66,7 @@ def create_app():
     app.register_blueprint(content_bp)
     app.register_blueprint(redirects_bp)
     app.register_blueprint(comunidade_bp)
+    app.register_blueprint(timeline_bp)
+    app.register_blueprint(categories_bp)
 
     return app

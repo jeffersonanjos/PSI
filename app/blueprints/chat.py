@@ -1,7 +1,7 @@
 #Rota responsável por gerenciar o chat privado entre usuários, EM DESENVOLVIMENTO
 from flask import Blueprint, request, jsonify
 from flask_login import current_user, login_required
-from app.extensions import db
+from ..models import db
 from app.models import PrivateMessage, Usuario
 from datetime import datetime
 

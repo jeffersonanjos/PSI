@@ -104,6 +104,14 @@ O sistema deve permitir cadastrar, visualizar e discutir **pessoas, tradições,
 - Painel do administrador para gerenciar usuários e categorias
 - Sistema de comentários com AJAX básico
 
+As funcionalidades acima foram implementadas. Para rodar:
+
+1. Instale dependências
+   - `pip install -r requirements.txt`
+2. Execute a aplicação
+   - `python run.py`
+3. Acesse `http://localhost:5000`
+
 ---
 
 🚀 Gere o código completo do projeto, com:

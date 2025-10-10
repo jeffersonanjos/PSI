@@ -17,7 +17,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <form action="{{ url_for('content.buscar_obra') }}" method="get" class="row g-3">
-                        <div class="col-md-10">
+                        <div class="col-md-7">
                             <div class="input-group">
                                 <span class="input-group-text">
                                     <i class="fas fa-search"></i>
@@ -29,6 +29,14 @@
                                        value="{{ termo or '' }}"
                                        autofocus>
                             </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="category_id">
+                                <option value="">Todas as categorias</option>
+                                {% for cat in categorias or [] %}
+                                    <option value="{{ cat.id }}" {% if selected_category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="col-md-2">
                             <button type="submit" class="btn btn-primary w-100">

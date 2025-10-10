@@ -23,13 +23,16 @@ def register():
             flash('E-mail já cadastrado.', 'warning')
             return redirect(url_for('auth.register'))
 
+        # Primeiro usuário é admin; demais começam como visitantes
         is_admin = Usuario.query.count() == 0
+        role = 'admin' if is_admin else 'visitante'
 
         novo = Usuario(
             nome=nome,
             email=email,
             biografia=biografia,
-            is_admin=is_admin
+            is_admin=is_admin,
+            role=role
         )
         novo.senha = senha  
         db.session.add(novo)
