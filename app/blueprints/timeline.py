@@ -12,30 +12,27 @@ def index():
     return render_template('timeline.html', items=items)
 
 
-@timeline_bp.route('/create', methods=['GET', 'POST'])
+@timeline_bp.route('/create', methods=['POST'])
 @login_required
 def create():
     if not current_user.is_admin:
         flash('Apenas administradores podem criar marcos da linha do tempo.', 'danger')
         return redirect(url_for('timeline.index'))
+    
+    ano = request.form.get('ano', type=int)
+    titulo = (request.form.get('titulo') or '').strip()
+    descricao = (request.form.get('descricao') or '').strip()
+    imagem = (request.form.get('imagem') or '').strip() or None
 
-    if request.method == 'POST':
-        ano = request.form.get('ano', type=int)
-        titulo = (request.form.get('titulo') or '').strip()
-        descricao = (request.form.get('descricao') or '').strip()
-        imagem = (request.form.get('imagem') or '').strip() or None
-
-        if not ano or not titulo:
-            flash('Ano e título são obrigatórios.', 'warning')
-            return redirect(url_for('timeline.index'))
-
-        item = TimelineModel(ano=ano, titulo=titulo, descricao=descricao or None, imagem=imagem)
-        db.session.add(item)
-        db.session.commit()
-        flash('Marco criado com sucesso!', 'success')
+    if not ano or not titulo:
+        flash('Ano e título são obrigatórios.', 'warning')
         return redirect(url_for('timeline.index'))
 
-    return render_template('timeline.html')
+    item = TimelineModel(ano=ano, titulo=titulo, descricao=descricao or None, imagem=imagem)
+    db.session.add(item)
+    db.session.commit()
+    flash('Marco criado com sucesso!', 'success')
+    return redirect(url_for('timeline.index'))
 
 
 @timeline_bp.route('/<int:item_id>/delete', methods=['POST'])
