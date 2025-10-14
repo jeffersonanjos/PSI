@@ -71,9 +71,9 @@ def minhas_comuidades_alias():
 @comunidade_bp.route('/oficial', methods=['GET'])
 @login_required
 def comunidade_oficial():
-    """Redireciona diretamente para a comunidade oficial SeriDigital"""
+    """Redireciona diretamente para a comunidade oficial MemóriaViva"""
     # Buscar comunidade oficial
-    comunidade_oficial = Community.query.filter_by(name='SeriDigital').first()
+    comunidade_oficial = Community.query.filter_by(name='MemóriaViva').first()
     
     if not comunidade_oficial:
         flash('Comunidade oficial não encontrada.', 'error')
