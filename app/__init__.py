@@ -33,7 +33,7 @@ def create_app():
         except Exception as e:
             print(f"⚠️  Erro ao aplicar migrações: {e}")
         
-        # Criar conta e comunidade padrão SeriDigital
+        # Criar conta e comunidade padrão MemóriaViva
         try:
             from .init_default_data import create_default_account_and_community
             create_default_account_and_community()
