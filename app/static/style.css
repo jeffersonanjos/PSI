@@ -1,17 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Theme tokens — warm, culture-inspired palette */
 :root {
-    --color-ink: #0F1412;
-    --color-paper: #FFFFFF;
-    --color-bg-soft: #F2E9CE;
-    --color-primary-700: #263530;
-    --color-primary-600: #577343;
-    --color-primary-500: #688C4F;
-    --color-accent-500: #A67C49;
+    /* Neutrals */
+    --color-ink: #1E1A16;            /* dark brown/charcoal for high readability */
+    --color-paper: #FAF6EB;          /* warm off‑white, like parchment */
+    --color-bg-soft: #F3E5CF;        /* sand tone backdrop */
 
+    /* Primaries (greens inspired by folclore, natureza) */
+    --color-primary-700: #2F5233;    /* deep forest green */
+    --color-primary-600: #486B3C;    /* matte mate green */
+    --color-primary-500: #6B8F47;    /* leaf green */
+
+    /* Accent (terracotta/ocre) */
+    --color-accent-500: #C77D3B;     /* barro/cerâmica warm accent */
+
+    /* Helpers */
+    --bg-overlay: rgba(42, 30, 18, 0.55); /* warm overlay over background image */
     --shadow-rgb: 0, 0, 0;
-    --ink-muted: rgba(15, 20, 18, 0.8);
-    --border-soft: rgba(15, 20, 18, 0.1);
+    --ink-muted: rgba(30, 26, 22, 0.8);
+    --border-soft: rgba(30, 26, 22, 0.12);
 }
 
 * {
@@ -22,8 +30,10 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: url('/static/img/background.jpg') no-repeat center center fixed;
-    background-size: cover;
+    /* layered background: warm overlay + cultural image */
+    background:
+      linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+      url('/static/img/background.jpg') center center / cover fixed no-repeat;
     min-height: 100vh;
     color: var(--color-ink);
     line-height: 1.6;
@@ -31,6 +41,7 @@ body {
     flex-direction: column;
 }
 
+/* Subtle vignette to improve text contrast over the background */
 body::before {
     content: '';
     position: fixed;
@@ -38,7 +49,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.3);
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.35) 70%);
     z-index: -1;
 }
 
@@ -186,6 +197,16 @@ main {
 
 .badge.bg-primary {
     background-color: var(--color-primary-600) !important;
+    color: #fff !important;
+}
+
+/* Accent helpers */
+.bg-accent {
+    background-color: var(--color-accent-500) !important;
+    color: #fff !important;
+}
+.badge.bg-accent {
+    background-color: var(--color-accent-500) !important;
     color: #fff !important;
 }
 
@@ -337,7 +358,11 @@ h2 {
 }
 
 .jumbotron {
-    background: linear-gradient(135deg, rgba(87, 115, 67, 0.9) 0%, rgba(104, 140, 79, 0.9) 100%) !important;
+    background: linear-gradient(135deg,
+      rgba(47, 82, 51, 0.94) 0%,
+      rgba(107, 143, 71, 0.92) 60%,
+      rgba(199, 125, 59, 0.85) 100%
+    ) !important;
     border-radius: 20px;
     padding: 4rem 2rem;
     margin: 2rem 0;
