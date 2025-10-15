@@ -3,6 +3,15 @@
 {% block title %}Perfil de {{ usuario.nome }} - MemóriaViva{% endblock %}
 
 {% block content %}
+<script>
+// Garantir que o loader seja escondido quando a página do perfil carregar
+document.addEventListener('DOMContentLoaded', function() {
+    const loader = document.getElementById('globalLoader');
+    if (loader) {
+        loader.classList.remove('show');
+    }
+});
+</script>
 <style>
 .timeline-item {
     position: relative;

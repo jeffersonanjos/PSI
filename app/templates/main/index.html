@@ -101,6 +101,9 @@
                                 <div class="d-grid gap-2">
                                     <a href="{{ url_for('posts.create_post') }}" class="btn btn-success">Criar Post</a>
                                     <a href="{{ url_for('content.create_content') }}" class="btn btn-info">Adicionar Obra</a>
+                                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                                        <i class="fas fa-comment-dots me-1"></i> Enviar Feedback
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -160,6 +163,47 @@
                     </div>
                 </div>
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Feedback -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Enviar Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="post" action="{{ url_for('feedback.enviar_feedback') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required
+                               value="{{ current_user.nome if current_user.is_authenticated else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">E-mail</label>
+                        <input type="email" class="form-control" id="email" name="email" required
+                               value="{{ current_user.email if current_user.is_authenticated else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="assunto" class="form-label">Assunto</label>
+                        <input type="text" class="form-control" id="assunto" name="assunto" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mensagem" class="form-label">Mensagem</label>
+                        <textarea class="form-control" id="mensagem" name="mensagem" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar Feedback</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

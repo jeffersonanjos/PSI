@@ -71,6 +71,13 @@ body.homepage.option-image::after {
   border-top: 1px solid rgba(2,6,23,0.06);
   color: var(--color-text);
 }
+.app-footer .fw-semibold {
+  color: var(--color-text) !important;
+}
+.app-footer .text-muted {
+  color: var(--color-text) !important;
+  opacity: 0.7;
+}
 :root.dark .app-footer { border-top-color: rgba(226,232,240,0.12); }
 
 /* Cards */
