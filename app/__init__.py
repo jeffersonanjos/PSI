@@ -50,7 +50,6 @@ def create_app():
     from .blueprints.users import users_bp
     from .blueprints.posts import posts_bp
     from .blueprints.content import content_bp
-    from .blueprints.timeline import timeline_bp
     from .blueprints.categories import categories_bp
     from .blueprints.redirects import redirects_bp
     from .blueprints.chat import chat_bp
@@ -66,7 +65,6 @@ def create_app():
     app.register_blueprint(content_bp)
     app.register_blueprint(redirects_bp)
     app.register_blueprint(comunidade_bp)
-    app.register_blueprint(timeline_bp)
     app.register_blueprint(categories_bp)
 
     return app
