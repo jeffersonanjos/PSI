@@ -1,47 +1,24 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comunidade</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">MemóriaViva</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('users.list_users') }}">Minha Lista</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('users.profile', user_id=current_user.id) }}">Perfil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('comunidade.blocked_communities') }}">Bloqueadas</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    
-    <div class="container mt-5 mb-4">
+{% extends "base.html" %}
+
+{% block title %}Comunidades - MemóriaViva{% endblock %}
+
+{% block content %}
+    <div class="container mt-4 mb-4" data-aos="fade-up">
         <div class="row">
             <div class="col-12">
-                <h1 style="color: #ffffff;">Comunidades</h1>
+                <h1 class="h3 mb-4">Comunidades</h1>
 
                 <!-- Filtros e Controles -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-6 mb-2 mb-md-0">
                         <a href="{{ url_for('comunidade.criar_comunidade') }}" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Criar Nova Comunidade
                         </a>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <div class="col-md-6 text-md-end">
                         <div class="form-check form-switch d-inline-block me-3">
                             <input class="form-check-input" type="checkbox" id="includeFiltered">
-                            <label class="form-check-label" style="color: #ffffff;" for="includeFiltered">
+                            <label class="form-check-label" for="includeFiltered">
                                 Incluir conteúdo filtrado
                             </label>
                         </div>
@@ -52,10 +29,10 @@
                 </div>
 
                 {% if comunidades %}
-                    <div class="row">
+                    <div class="grid-cards">
                         {% for comunidade in comunidades %}
-                            <div class="col-md-6 col-lg-4 mb-4">
-                                <div class="card h-100">
+                            <div data-aos="fade-up" data-aos-delay="{{ loop.index0 * 50 }}">
+                                <div class="card h-100 hover-raise">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <h5 class="card-title mb-0">{{ comunidade.name }}</h5>
@@ -156,23 +133,23 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
-    <script>
-        // Controle do filtro de conteúdo
-        document.getElementById('includeFiltered').addEventListener('change', function() {
-            const includeFiltered = this.checked;
-            const currentUrl = new URL(window.location);
-            currentUrl.searchParams.set('include_filtered', includeFiltered);
-            window.location.href = currentUrl.toString();
-        });
-        
-        // Define o estado inicial do checkbox baseado na URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const includeFiltered = urlParams.get('include_filtered');
-        if (includeFiltered === 'true') {
-            document.getElementById('includeFiltered').checked = true;
-        }
-    </script>
-</body>
-</html>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Controle do filtro de conteúdo
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkbox = document.getElementById('includeFiltered');
+    if (!checkbox) return;
+    checkbox.addEventListener('change', function() {
+      const includeFiltered = this.checked;
+      const currentUrl = new URL(window.location);
+      currentUrl.searchParams.set('include_filtered', includeFiltered);
+      window.location.href = currentUrl.toString();
+    });
+    const urlParams = new URLSearchParams(window.location.search);
+    const includeFiltered = urlParams.get('include_filtered');
+    if (includeFiltered === 'true') checkbox.checked = true;
+  });
+</script>
+{% endblock %}
