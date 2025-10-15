@@ -358,10 +358,10 @@ h2 {
 }
 
 .jumbotron {
+    /* Atualiza o background de entrada: gradiente verde uniforme */
     background: linear-gradient(135deg,
-      rgba(47, 82, 51, 0.94) 0%,
-      rgba(107, 143, 71, 0.92) 60%,
-      rgba(199, 125, 59, 0.85) 100%
+      rgba(47, 82, 51, 0.95) 0%,
+      rgba(107, 143, 71, 0.92) 100%
     ) !important;
     border-radius: 20px;
     padding: 4rem 2rem;
