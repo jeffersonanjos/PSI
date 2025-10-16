@@ -28,6 +28,77 @@
     box-sizing: border-box;
 }
 
+/* ===========================
+   MODAL: CRIAR NOVA POSTAGEM
+   =========================== */
+#createPostButton {
+  background-color: var(--color-primary-600, #0e56b3);
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  transition: background 0.2s ease-in-out;
+}
+#createPostButton:hover {
+  background-color: var(--color-primary-700, #0b3c91);
+}
+
+/* Fundo suave do modal */
+#injectedCreatePostModal {
+  background: rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Caixa do modal */
+.create-post-dialog {
+  background: #ffffff;
+  color: #000000;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  font-family: 'Poppins', sans-serif;
+}
+
+.create-post-dialog h2 {
+  color: var(--color-primary-700, #0b3c91);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Textarea com bordas suaves */
+.create-post-textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #d8e2ef;
+  background: #ffffff;    /* fundo branco puro */
+  color: #000000;         /* texto preto */
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.create-post-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-600, #0e56b3);
+  box-shadow: 0 0 0 2px rgba(14, 86, 179, 0.15);
+  background: #fff;
+}
+
+/* Botões de ação */
+.create-post-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.create-post-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary-600, #0e56b3);
+  box-shadow: 0 0 0 2px rgba(14, 86, 179, 0.15);
+  background: #ffffff; /* mantém o fundo branco no foco */
+  color: #000000;      /* mantém texto preto */
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     /* layered background: warm overlay + cultural image */
