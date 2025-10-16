@@ -22,10 +22,9 @@
                                 <label for="type" class="form-label">Tipo de Conteúdo</label>
                                 <select class="form-select" id="type" name="type" required>
                                     <option value="">Selecione o tipo</option>
-                                    <option value="artigo">Artigo</option>
-                                    <option value="relato">Relato</option>
-                                    <option value="entrevista">Entrevista</option>
-                                    <option value="foto">Foto</option>
+                                    <option value="livro">Livro</option>
+                                    <option value="manifesto">Manifesto</option>
+                                    <option value="youtube_video">Vídeo do YouTube</option>
                                 </select>
                             </div>
                         </div>
@@ -36,15 +35,15 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="url" class="form-label">Link relacionado (YouTube ou página externa)</label>
+                            <label for="url" class="form-label">Link do YouTube</label>
                             <input type="url" class="form-control" id="url" name="url" placeholder="https://youtube.com/watch?v=...">
-                            <small class="text-muted">Link relacionado ao conteúdo, como vídeo de entrevista ou referência externa.</small>
+                            <small class="text-muted">Link do vídeo do YouTube. Obrigatório para vídeos do YouTube.</small>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="file" class="form-label">Arquivo (PDF, EPUB ou imagem) - opcional se houver link</label>
-                            <input type="file" class="form-control" id="file" name="file" accept=".pdf,.epub,.jpg,.jpeg,.png,.webp">
-                            <small class="text-muted">Formatos aceitos: PDF, EPUB, JPG, JPEG, PNG, WEBP. Arquivo ou link é obrigatório.</small>
+                            <label for="file" class="form-label">Arquivo (PDF, EPUB) - opcional para vídeos do YouTube</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".pdf,.epub">
+                            <small class="text-muted">Formatos aceitos: PDF, EPUB. Obrigatório para livros e manifestos.</small>
                         </div>
                         
                         <div class="row">
