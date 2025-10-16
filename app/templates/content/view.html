@@ -63,7 +63,13 @@
                         
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <span class="badge bg-primary fs-6">{{ content.type.title() }}</span>
+                                <span class="badge bg-primary fs-6">
+                                    {% if content.type == 'youtube_video' %}
+                                        Vídeo do YouTube
+                                    {% else %}
+                                        {{ content.type.title() }}
+                                    {% endif %}
+                                </span>
                                 {% if content.release_date %}
                                     <span class="badge bg-secondary fs-6">{{ content.release_date.year }}</span>
                                 {% endif %}

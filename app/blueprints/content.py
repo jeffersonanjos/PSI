@@ -101,7 +101,7 @@ def create_content():
         release_date = request.form.get('release_date')
         
         # Validação de tipos permitidos
-        allowed_types = ['livro', 'manifesto']
+        allowed_types = ['livro', 'manifesto', 'youtube_video']
         if content_type not in allowed_types:
             flash('Tipo de obra inválido. Selecione um tipo válido.', 'danger')
             return render_template('content/create.html')
@@ -110,7 +110,13 @@ def create_content():
         has_file = request.files.get('file') and request.files.get('file').filename != ''
         has_youtube_url = url and url.strip() != ''
         
-        if not has_file and not has_youtube_url:
+        # Para vídeos do YouTube, URL é obrigatória
+        if content_type == 'youtube_video' and not has_youtube_url:
+            flash('Para vídeos do YouTube, é obrigatório fornecer o link do vídeo.', 'danger')
+            return render_template('content/create.html')
+        
+        # Para outros tipos, arquivo OU URL é obrigatório
+        if content_type != 'youtube_video' and not has_file and not has_youtube_url:
             flash('É obrigatório fornecer um arquivo (PDF/EPUB) ou um link do YouTube.', 'danger')
             return render_template('content/create.html')
         
@@ -183,7 +189,7 @@ def edit_content(content_id):
         content.title = request.form.get('title')
         content.description = request.form.get('description')
         content_type = request.form.get('type')
-        allowed_types = ['livro', 'manifesto']
+        allowed_types = ['livro', 'manifesto', 'youtube_video']
         if content_type not in allowed_types:
             flash('Tipo de obra inválido. Selecione um tipo válido.', 'danger')
             return render_template('content/edit.html', content=content)
