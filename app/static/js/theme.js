@@ -31,7 +31,6 @@
     } catch (_) {}
   }
 
-  function showLoader() { document.getElementById('globalLoader')?.classList.add('show'); }
   function hideLoader() { document.getElementById('globalLoader')?.classList.remove('show'); }
 
   function hookLinksForLoader() {
