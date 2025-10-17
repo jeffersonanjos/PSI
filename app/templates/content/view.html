@@ -10,7 +10,9 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h3 style="color: white;">{{ content.title }}</h3>
-                        {% if current_user.is_authenticated %}
+
+                        {# ✅ Apenas o dono do conteúdo vê os botões Editar/Excluir #}
+                        {% if current_user.is_authenticated and current_user.id == content.user_id %}
                             <div class="btn-group" role="group">
                                 <a href="{{ url_for('content.edit_content', content_id=content.id) }}" class="btn btn-primary">
                                     <i class="fas fa-edit"></i> Editar
@@ -27,11 +29,11 @@
                         {% endif %}
                     </div>
                 </div>
+
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4">
                             {% if content.url %}
-                                <!-- Thumbnail com play icon se tiver um link de vídeo -->
                                 <a href="{{ content.url }}" target="_blank" class="text-decoration-none">
                                     <div class="obra-thumbnail-container">
                                         {% if content.thumbnail %}
@@ -119,7 +121,6 @@
 
                 <div class="card-body">
                     {% if current_user.is_authenticated %}
-                        <!-- Formulário de Avaliação -->
                         <div class="mb-4 p-3 bg-light rounded">
                             <h6 class="mb-3">Deixe sua avaliação</h6>
                             <form method="POST" action="{{ url_for('content.rate_content', content_id=content.id) }}">
@@ -151,7 +152,6 @@
                         </div>
                     {% endif %}
 
-                    <!-- Lista de Avaliações -->
                     {% if ratings %}
                         <h6 class="mt-4 mb-3">Todas as avaliações:</h6>
                         {% for rating in ratings %}
@@ -170,6 +170,7 @@
                                         </div>
                                         <small class="text-muted">{{ rating.created_at.strftime('%d/%m/%Y às %H:%M') }}</small>
                                     </div>
+
                                     {% if current_user.is_authenticated and (current_user.id == rating.user_id or current_user.is_admin) %}
                                         <button class="btn btn-sm btn-outline-danger"
                                                 onclick="if(confirm('Deseja excluir esta avaliação?')) document.getElementById('delete-rating-{{ rating.id }}').submit();">
@@ -230,3 +231,4 @@
 }
 </style>
 {% endblock %}
+    

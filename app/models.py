@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from .extensions import bcrypt
 from werkzeug.security import check_password_hash as werkzeug_check_password_hash
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 
 from alembic import op
 import sqlalchemy as sa
@@ -317,21 +319,26 @@ class Content(db.Model):
     id = db.Column('cnt_id', db.Integer, primary_key=True)
     title = db.Column('cnt_title', db.String(255), nullable=False)
     description = db.Column('cnt_description', db.Text)
-    type = db.Column('cnt_type', db.String(50), nullable=False)  # livro, manifesto
+    type = db.Column('cnt_type', db.String(50), nullable=False)  # livro, manifesto, relato etc.
     release_date = db.Column('cnt_release_date', db.Date)
     thumbnail = db.Column('cnt_thumbnail', db.String(255))
     url = db.Column('cnt_url', db.String(255))
     file_path = db.Column('cnt_file_path', db.String(500))  # caminho do arquivo PDF/EPUB
-    file_type = db.Column('cnt_file_type', db.String(10))  # pdf ou epub
+    file_type = db.Column('cnt_file_type', db.String(10))  # pdf, epub, etc.
     created_at = db.Column('cnt_created_at', db.DateTime, default=datetime.utcnow, nullable=False)
     views_count = db.Column('cnt_views_count', db.Integer, default=0, nullable=False)
 
-    # Relacionamentos
-    comentarios = db.relationship('Comment', backref='content', lazy='dynamic')
-    likes = db.relationship('Like', backref='content', lazy='dynamic')
-    historico_assistido = db.relationship('WatchHistory', backref='content', lazy='dynamic')
-    avaliacoes = db.relationship('Rating', backref='content', lazy='dynamic')
-    categorias = db.relationship('ContentCategory', backref='content', lazy='dynamic')
+    # 🔹 Adiciona referência ao autor/criador
+    user_id = db.Column('cnt_user_id', db.Integer, db.ForeignKey('tb_users.usr_id'), nullable=False)
+
+    # 🔹 Relacionamentos
+    autor = db.relationship('Usuario', backref=db.backref('conteudos', lazy='dynamic'))
+    comentarios = db.relationship('Comment', backref='content', lazy='dynamic', cascade='all, delete-orphan')
+    likes = db.relationship('Like', backref='content', lazy='dynamic', cascade='all, delete-orphan')
+    historico_assistido = db.relationship('WatchHistory', backref='content', lazy='dynamic', cascade='all, delete-orphan')
+    avaliacoes = db.relationship('Rating', backref='content', lazy='dynamic', cascade='all, delete-orphan')
+    categorias = db.relationship('ContentCategory', backref='content', lazy='dynamic', cascade='all, delete-orphan')
+    
 
 class Category(db.Model):
     __tablename__ = 'tb_categories'

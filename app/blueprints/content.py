@@ -14,7 +14,6 @@ def list_content():
     """Lista todo o conteúdo disponível"""
     contents = Content.query.all()
 
-    # Helpers do YouTube
     from ..utils.helpers import (
         extract_youtube_id,
         youtube_thumbnail_url,
@@ -99,7 +98,7 @@ def view_content(content_id):
 @content_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create_content():
-    """Cria novo conteúdo (artigo, relato, entrevista ou foto)"""
+    """Cria novo conteúdo"""
     if request.method == 'POST':
         title = request.form.get('title')
         description = request.form.get('description')
@@ -108,18 +107,16 @@ def create_content():
         thumbnail = request.form.get('thumbnail')
         release_date = request.form.get('release_date')
 
-        # ✅ Tipos aceitos conforme o HTML
         allowed_types = ['artigo', 'relato', 'entrevista', 'foto']
         if content_type not in allowed_types:
-            flash('Tipo de conteúdo inválido. Selecione um tipo válido.', 'danger')
+            flash('Tipo de conteúdo inválido.', 'danger')
             return render_template('content/create.html')
 
-        # Validar: arquivo OU URL obrigatório
         has_file = request.files.get('file') and request.files.get('file').filename != ''
         has_url = url and url.strip() != ''
 
         if not has_file and not has_url:
-            flash('É obrigatório fornecer um arquivo (PDF/Imagem) ou um link.', 'danger')
+            flash('É obrigatório fornecer um arquivo ou um link.', 'danger')
             return render_template('content/create.html')
 
         relative_path = None
@@ -129,11 +126,9 @@ def create_content():
         if file and file.filename != '':
             filename = secure_filename(file.filename)
             file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-
-            # ✅ Extensões aceitas
             ALLOWED_FILE_EXTS = ['pdf', 'epub', 'jpg', 'jpeg', 'png', 'webp']
             if file_ext not in ALLOWED_FILE_EXTS:
-                flash('Formato de arquivo não permitido. Use PDF, EPUB ou imagem (JPG/PNG/WEBP).', 'danger')
+                flash('Formato de arquivo não permitido.', 'danger')
                 return render_template('content/create.html')
 
             upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'obras')
@@ -142,10 +137,9 @@ def create_content():
             unique_filename = f"{uuid.uuid4().hex}_{filename}"
             file_path = os.path.join(upload_dir, unique_filename)
             file.save(file_path)
-
             relative_path = f"uploads/obras/{unique_filename}"
 
-        # Gerar thumbnail do YouTube automaticamente se for entrevista
+        # Gera thumbnail do YouTube automaticamente se aplicável
         if not thumbnail and url:
             from ..utils.helpers import extract_youtube_id, youtube_thumbnail_url
             video_id = extract_youtube_id(url)
@@ -154,9 +148,6 @@ def create_content():
 
         from ..utils.helpers import parse_date
         release_date_obj = parse_date(release_date)
-        if release_date and not release_date_obj:
-            flash('Data de publicação inválida.', 'danger')
-            return render_template('content/create.html')
 
         new_content = Content(
             title=title,
@@ -166,7 +157,8 @@ def create_content():
             thumbnail=thumbnail,
             release_date=release_date_obj,
             file_path=relative_path,
-            file_type=file_ext
+            file_type=file_ext,
+            user_id=current_user.id
         )
 
         db.session.add(new_content)
@@ -184,54 +176,56 @@ def edit_content(content_id):
     """Edita conteúdo existente"""
     content = Content.query.get_or_404(content_id)
 
+    if content.user_id != current_user.id:
+        flash("Você não tem permissão para editar este conteúdo.", "danger")
+        return redirect(url_for('content.view_content', content_id=content_id))
+
     if request.method == 'POST':
         content.title = request.form.get('title')
         content.description = request.form.get('description')
         content_type = request.form.get('type')
 
-        allowed_types = ['artigo', 'relato', 'entrevista', 'foto']
-        if content_type not in allowed_types:
-            flash('Tipo de conteúdo inválido. Selecione um tipo válido.', 'danger')
+        if content_type not in ['artigo', 'relato', 'entrevista', 'foto']:
+            flash('Tipo de conteúdo inválido.', 'danger')
             return render_template('content/edit.html', content=content)
 
         content.type = content_type
 
+        # Upload de novo arquivo
         file = request.files.get('file')
         if file and file.filename != '':
             filename = secure_filename(file.filename)
-            file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-            ALLOWED_FILE_EXTS = ['pdf', 'epub', 'jpg', 'jpeg', 'png', 'webp']
-
-            if file_ext not in ALLOWED_FILE_EXTS:
-                flash('Formato de arquivo não permitido. Use PDF, EPUB ou imagem (JPG/PNG/WEBP).', 'danger')
+            ext = filename.rsplit('.', 1)[1].lower()
+            if ext not in ['pdf', 'epub', 'jpg', 'jpeg', 'png', 'webp']:
+                flash('Formato de arquivo inválido.', 'danger')
                 return render_template('content/edit.html', content=content)
-
-            if content.file_path:
-                old_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', content.file_path)
-                if os.path.exists(old_file_path):
-                    os.remove(old_file_path)
 
             upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'obras')
             os.makedirs(upload_dir, exist_ok=True)
 
             unique_filename = f"{uuid.uuid4().hex}_{filename}"
-            file_path = os.path.join(upload_dir, unique_filename)
-            file.save(file_path)
-
+            file.save(os.path.join(upload_dir, unique_filename))
             content.file_path = f"uploads/obras/{unique_filename}"
-            content.file_type = file_ext
+            content.file_type = ext
+
+        # Upload da nova capa
+        thumbnail_file = request.files.get('thumbnail_file')
+        if thumbnail_file and thumbnail_file.filename != '':
+            filename = secure_filename(thumbnail_file.filename)
+            ext = filename.rsplit('.', 1)[1].lower()
+            if ext in ['jpg', 'jpeg', 'png', 'webp']:
+                upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'thumbnails')
+                os.makedirs(upload_dir, exist_ok=True)
+                unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                file_path = os.path.join(upload_dir, unique_filename)
+                thumbnail_file.save(file_path)
+                new_thumbnail_url = url_for('static', filename=f'uploads/thumbnails/{unique_filename}', _external=False)
+                content.thumbnail = new_thumbnail_url
+            else:
+                flash('Formato de capa inválido. Use JPG, PNG ou WEBP.', 'danger')
 
         new_url = request.form.get('url')
-        content.url = new_url
-
-        new_thumbnail = request.form.get('thumbnail')
-        content.thumbnail = new_thumbnail
-
-        if not new_thumbnail and new_url:
-            from ..utils.helpers import extract_youtube_id, youtube_thumbnail_url
-            video_id = extract_youtube_id(new_url)
-            if video_id:
-                content.thumbnail = youtube_thumbnail_url(video_id, quality='maxresdefault')
+        content.url = new_url or content.url
 
         release_date = request.form.get('release_date')
         if release_date:
@@ -239,31 +233,32 @@ def edit_content(content_id):
             content.release_date = parse_date(release_date)
 
         db.session.commit()
+
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': True, 'new_thumbnail_url': content.thumbnail}), 200
+
         flash('Conteúdo atualizado com sucesso!', 'success')
         return redirect(url_for('content.view_content', content_id=content_id))
 
     return render_template('content/edit.html', content=content)
 
 
-@content_bp.route('/upload-image', methods=['POST'])
-@login_required
-def upload_image():
-    """Upload rápido de imagem para conteúdo. Retorna URL pública."""
-    if 'image' not in request.files:
-        return jsonify({'success': False, 'message': 'Nenhum arquivo enviado.'}), 400
+@content_bp.route('/<int:content_id>/download')
+def download_content(content_id):
+    """Permite o download do arquivo do conteúdo"""
+    content = Content.query.get_or_404(content_id)
 
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'success': False, 'message': 'Arquivo inválido.'}), 400
+    if not content.file_path:
+        flash('Este conteúdo não possui arquivo para download.', 'warning')
+        return redirect(url_for('content.view_content', content_id=content_id))
 
-    filename = secure_filename(file.filename)
-    upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads')
-    os.makedirs(upload_dir, exist_ok=True)
-    save_path = os.path.join(upload_dir, filename)
-    file.save(save_path)
+    file_full_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', content.file_path)
 
-    file_url = url_for('static', filename=f'uploads/{filename}', _external=False)
-    return jsonify({'success': True, 'url': file_url})
+    if not os.path.exists(file_full_path):
+        flash('Arquivo não encontrado.', 'danger')
+        return redirect(url_for('content.view_content', content_id=content_id))
+
+    return send_file(file_full_path, as_attachment=True, download_name=os.path.basename(file_full_path))
 
 
 @content_bp.route('/<int:content_id>/delete', methods=['POST'])
@@ -271,6 +266,10 @@ def upload_image():
 def delete_content(content_id):
     """Deleta um conteúdo"""
     content = Content.query.get_or_404(content_id)
+
+    if content.user_id != current_user.id:
+        flash("Você não tem permissão para excluir este conteúdo.", "danger")
+        return redirect(url_for('content.view_content', content_id=content_id))
 
     try:
         if content.file_path:
@@ -288,86 +287,37 @@ def delete_content(content_id):
     return redirect(url_for('content.list_content'))
 
 
-@content_bp.route('/<int:content_id>/download')
-@login_required
-def download_content(content_id):
-    """Faz download do arquivo do conteúdo"""
-    content = Content.query.get_or_404(content_id)
-
-    if not content.file_path:
-        flash('Este conteúdo não possui arquivo disponível para download.', 'danger')
-        return redirect(url_for('content.view_content', content_id=content_id))
-
-    file_full_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', content.file_path)
-    if not os.path.exists(file_full_path):
-        flash('Arquivo não encontrado.', 'danger')
-        return redirect(url_for('content.view_content', content_id=content_id))
-
-    return send_file(file_full_path, as_attachment=True, download_name=f"{content.title}.{content.file_type}")
-
-# ============================================================
-# Sistema de avaliações
-# ============================================================
-
 @content_bp.route('/<int:content_id>/rate', methods=['POST'])
 @login_required
 def rate_content(content_id):
-    """Adiciona ou atualiza avaliação de um conteúdo"""
-    content = Content.query.get_or_404(content_id)
-    
+    """Permite que o usuário avalie o conteúdo"""
     rating_value = request.form.get('rating', type=int)
-    review_text = request.form.get('review', '').strip()
-    
     if not rating_value or rating_value < 1 or rating_value > 5:
-        flash('Avaliação inválida. Escolha entre 1 e 5 estrelas.', 'danger')
+        flash('Avaliação inválida. Escolha uma nota de 1 a 5.', 'danger')
         return redirect(url_for('content.view_content', content_id=content_id))
-    
-    existing = Rating.query.filter_by(
-        user_id=current_user.id,
-        content_id=content_id
-    ).first()
-    
-    try:
-        if existing:
-            existing.rating = rating_value
-            existing.review = review_text if review_text else None
-            flash('Sua avaliação foi atualizada!', 'success')
-        else:
-            new_rating = Rating(
-                user_id=current_user.id,
-                content_id=content_id,
-                rating=rating_value,
-                review=review_text if review_text else None
-            )
-            db.session.add(new_rating)
-            flash('Avaliação enviada com sucesso!', 'success')
-        
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Erro ao salvar avaliação: {str(e)}', 'danger')
-    
+
+    existing = Rating.query.filter_by(user_id=current_user.id, content_id=content_id).first()
+    if existing:
+        existing.rating = rating_value
+    else:
+        new_rating = Rating(user_id=current_user.id, content_id=content_id, rating=rating_value)
+        db.session.add(new_rating)
+
+    db.session.commit()
+    flash('Avaliação registrada com sucesso!', 'success')
     return redirect(url_for('content.view_content', content_id=content_id))
 
 
 @content_bp.route('/rating/<int:rating_id>/remove', methods=['POST'])
 @login_required
 def remove_rating(rating_id):
-    """Remove uma avaliação existente"""
+    """Permite que o usuário remova sua avaliação"""
     rating = Rating.query.get_or_404(rating_id)
-    content_id = rating.content_id
+    if rating.user_id != current_user.id:
+        flash('Você não tem permissão para remover esta avaliação.', 'danger')
+        return redirect(url_for('content.view_content', content_id=rating.content_id))
 
-    # Permissão: autor ou admin
-    if current_user.id != rating.user_id and not current_user.is_admin:
-        flash('Você não tem permissão para excluir esta avaliação.', 'danger')
-        return redirect(url_for('content.view_content', content_id=content_id))
-    
-    try:
-        db.session.delete(rating)
-        db.session.commit()
-        flash('Avaliação excluída com sucesso!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Erro ao excluir avaliação: {str(e)}', 'danger')
-    
-    return redirect(url_for('content.view_content', content_id=content_id))
+    db.session.delete(rating)
+    db.session.commit()
+    flash('Avaliação removida com sucesso!', 'success')
+    return redirect(url_for('content.view_content', content_id=rating.content_id))
