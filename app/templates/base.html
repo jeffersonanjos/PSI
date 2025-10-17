@@ -49,14 +49,13 @@
             <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Início</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('content.list_content') }}">Conteúdos</a></li>
             {% if current_user.is_authenticated and current_user.is_admin %}
-            <li class="nav-item"><a class="nav-link" href="{{ url_for('categories.list_categories') }}">Categorias</a></li>
-            {% endif %}
+         
             <li class="nav-item"><a class="nav-link" href="{{ url_for('comunidade.comunidade') }}">Comunidades</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('posts.list_posts') }}">Posts</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('users.list_users') }}">Usuários</a></li>
             <li class="nav-item"><a class="nav-link" href="{{ url_for('feedback.enviar_feedback') }}">Feedback</a></li>
           </ul>
-
+            {% endif %}
           <ul class="navbar-nav align-items-center gap-2">
             <li class="nav-item">
               <button id="themeToggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Alternar tema">

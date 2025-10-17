@@ -6,19 +6,19 @@ import os
 from werkzeug.utils import secure_filename
 import uuid
 
+# ✅ Blueprint corretamente nomeado
 content_bp = Blueprint('content', __name__, url_prefix='/content')
 
 
+# ============================================================
+# LISTAR CONTEÚDOS
+# ============================================================
 @content_bp.route('/')
 def list_content():
     """Lista todo o conteúdo disponível"""
     contents = Content.query.all()
 
-    from ..utils.helpers import (
-        extract_youtube_id,
-        youtube_thumbnail_url,
-        youtube_embed_url,
-    )
+    from ..utils.helpers import extract_youtube_id, youtube_thumbnail_url, youtube_embed_url
 
     return render_template(
         'content/list.html',
@@ -29,6 +29,9 @@ def list_content():
     )
 
 
+# ============================================================
+# BUSCAR CONTEÚDOS
+# ============================================================
 @content_bp.route('/buscar', methods=['GET'])
 @login_required
 def buscar_obra():
@@ -59,6 +62,9 @@ def buscar_obra():
     )
 
 
+# ============================================================
+# VISUALIZAR CONTEÚDO
+# ============================================================
 @content_bp.route('/<int:content_id>')
 def view_content(content_id):
     """Visualiza um conteúdo específico"""
@@ -76,11 +82,7 @@ def view_content(content_id):
             content_id=content_id
         ).first()
 
-    from ..utils.helpers import (
-        extract_youtube_id,
-        youtube_thumbnail_url,
-        youtube_embed_url,
-    )
+    from ..utils.helpers import extract_youtube_id, youtube_thumbnail_url, youtube_embed_url
 
     return render_template(
         'content/view.html',
@@ -95,6 +97,9 @@ def view_content(content_id):
     )
 
 
+# ============================================================
+# CRIAR CONTEÚDO
+# ============================================================
 @content_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create_content():
@@ -139,7 +144,6 @@ def create_content():
             file.save(file_path)
             relative_path = f"uploads/obras/{unique_filename}"
 
-        # Gera thumbnail do YouTube automaticamente se aplicável
         if not thumbnail and url:
             from ..utils.helpers import extract_youtube_id, youtube_thumbnail_url
             video_id = extract_youtube_id(url)
@@ -170,79 +174,63 @@ def create_content():
     return render_template('content/create.html')
 
 
-@content_bp.route('/<int:content_id>/edit', methods=['GET', 'POST'])
+# ============================================================
+# EDITAR CONTEÚDO
+# ============================================================
+@content_bp.route('/edit/<int:content_id>', methods=['GET', 'POST'])
 @login_required
 def edit_content(content_id):
-    """Edita conteúdo existente"""
+    """Edita o conteúdo e gerencia capa permanentemente"""
     content = Content.query.get_or_404(content_id)
-
-    if content.user_id != current_user.id:
-        flash("Você não tem permissão para editar este conteúdo.", "danger")
-        return redirect(url_for('content.view_content', content_id=content_id))
 
     if request.method == 'POST':
         content.title = request.form.get('title')
         content.description = request.form.get('description')
-        content_type = request.form.get('type')
+        content.url = request.form.get('url')
+        content.type = request.form.get('type')
+        content.release_date = request.form.get('release_date') or None
 
-        if content_type not in ['artigo', 'relato', 'entrevista', 'foto']:
-            flash('Tipo de conteúdo inválido.', 'danger')
-            return render_template('content/edit.html', content=content)
-
-        content.type = content_type
-
-        # Upload de novo arquivo
-        file = request.files.get('file')
-        if file and file.filename != '':
-            filename = secure_filename(file.filename)
-            ext = filename.rsplit('.', 1)[1].lower()
-            if ext not in ['pdf', 'epub', 'jpg', 'jpeg', 'png', 'webp']:
-                flash('Formato de arquivo inválido.', 'danger')
-                return render_template('content/edit.html', content=content)
-
-            upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'obras')
-            os.makedirs(upload_dir, exist_ok=True)
-
-            unique_filename = f"{uuid.uuid4().hex}_{filename}"
-            file.save(os.path.join(upload_dir, unique_filename))
-            content.file_path = f"uploads/obras/{unique_filename}"
-            content.file_type = ext
-
-        # Upload da nova capa
+        remove_thumbnail = request.form.get('remove_thumbnail') == 'true'
         thumbnail_file = request.files.get('thumbnail_file')
-        if thumbnail_file and thumbnail_file.filename != '':
+        thumbnail_url = request.form.get('thumbnail')
+
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'thumbnails')
+        os.makedirs(upload_dir, exist_ok=True)
+
+        # ✅ REMOVER CAPA ANTIGA PERMANENTEMENTE
+        if remove_thumbnail:
+            if content.thumbnail and content.thumbnail.startswith('uploads/'):
+                full_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', content.thumbnail)
+                if os.path.exists(full_path):
+                    try:
+                        os.remove(full_path)
+                        print(f"Capa removida: {full_path}")
+                    except Exception as e:
+                        print(f"Erro ao remover capa: {e}")
+            content.thumbnail = None
+
+        # ✅ NOVO UPLOAD
+        elif thumbnail_file and thumbnail_file.filename:
             filename = secure_filename(thumbnail_file.filename)
-            ext = filename.rsplit('.', 1)[1].lower()
-            if ext in ['jpg', 'jpeg', 'png', 'webp']:
-                upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'thumbnails')
-                os.makedirs(upload_dir, exist_ok=True)
-                unique_filename = f"{uuid.uuid4().hex}_{filename}"
-                file_path = os.path.join(upload_dir, unique_filename)
-                thumbnail_file.save(file_path)
-                new_thumbnail_url = url_for('static', filename=f'uploads/thumbnails/{unique_filename}', _external=False)
-                content.thumbnail = new_thumbnail_url
-            else:
-                flash('Formato de capa inválido. Use JPG, PNG ou WEBP.', 'danger')
+            unique_name = f"{uuid.uuid4().hex}_{filename}"
+            save_path = os.path.join(upload_dir, unique_name)
+            thumbnail_file.save(save_path)
+            content.thumbnail = f"uploads/thumbnails/{unique_name}"
 
-        new_url = request.form.get('url')
-        content.url = new_url or content.url
-
-        release_date = request.form.get('release_date')
-        if release_date:
-            from ..utils.helpers import parse_date
-            content.release_date = parse_date(release_date)
+        # ✅ APENAS MUDAR URL MANUAL
+        elif thumbnail_url:
+            content.thumbnail = thumbnail_url
 
         db.session.commit()
-
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'success': True, 'new_thumbnail_url': content.thumbnail}), 200
-
-        flash('Conteúdo atualizado com sucesso!', 'success')
-        return redirect(url_for('content.view_content', content_id=content_id))
+        flash("Conteúdo atualizado com sucesso!", "success")
+        return jsonify(success=True, new_thumbnail_url=content.thumbnail or url_for('static', filename='img/default_cover.png'))
 
     return render_template('content/edit.html', content=content)
 
 
+# ============================================================
+# DOWNLOAD
+# ============================================================
 @content_bp.route('/<int:content_id>/download')
 def download_content(content_id):
     """Permite o download do arquivo do conteúdo"""
@@ -261,6 +249,32 @@ def download_content(content_id):
     return send_file(file_full_path, as_attachment=True, download_name=os.path.basename(file_full_path))
 
 
+# ============================================================
+# AVALIAR CONTEÚDO (RATE)
+# ============================================================
+@content_bp.route('/<int:content_id>/rate', methods=['POST'])
+@login_required
+def rate_content(content_id):
+    """Registra ou atualiza a avaliação de um conteúdo"""
+    rating_value = request.form.get('rating', type=int)
+    if not rating_value or rating_value < 1 or rating_value > 5:
+        flash('Avaliação inválida.', 'danger')
+        return redirect(url_for('content.view_content', content_id=content_id))
+
+    existing = Rating.query.filter_by(user_id=current_user.id, content_id=content_id).first()
+    if existing:
+        existing.rating = rating_value
+    else:
+        db.session.add(Rating(user_id=current_user.id, content_id=content_id, rating=rating_value))
+
+    db.session.commit()
+    flash('Avaliação registrada com sucesso!', 'success')
+    return redirect(url_for('content.view_content', content_id=content_id))
+
+
+# ============================================================
+# DELETAR CONTEÚDO
+# ============================================================
 @content_bp.route('/<int:content_id>/delete', methods=['POST'])
 @login_required
 def delete_content(content_id):
@@ -277,6 +291,11 @@ def delete_content(content_id):
             if os.path.exists(file_full_path):
                 os.remove(file_full_path)
 
+        if content.thumbnail and content.thumbnail.startswith('uploads/'):
+            thumb_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', content.thumbnail)
+            if os.path.exists(thumb_path):
+                os.remove(thumb_path)
+
         db.session.delete(content)
         db.session.commit()
         flash('Conteúdo deletado com sucesso!', 'success')
@@ -285,39 +304,3 @@ def delete_content(content_id):
         flash(f'Erro ao deletar conteúdo: {str(e)}', 'danger')
 
     return redirect(url_for('content.list_content'))
-
-
-@content_bp.route('/<int:content_id>/rate', methods=['POST'])
-@login_required
-def rate_content(content_id):
-    """Permite que o usuário avalie o conteúdo"""
-    rating_value = request.form.get('rating', type=int)
-    if not rating_value or rating_value < 1 or rating_value > 5:
-        flash('Avaliação inválida. Escolha uma nota de 1 a 5.', 'danger')
-        return redirect(url_for('content.view_content', content_id=content_id))
-
-    existing = Rating.query.filter_by(user_id=current_user.id, content_id=content_id).first()
-    if existing:
-        existing.rating = rating_value
-    else:
-        new_rating = Rating(user_id=current_user.id, content_id=content_id, rating=rating_value)
-        db.session.add(new_rating)
-
-    db.session.commit()
-    flash('Avaliação registrada com sucesso!', 'success')
-    return redirect(url_for('content.view_content', content_id=content_id))
-
-
-@content_bp.route('/rating/<int:rating_id>/remove', methods=['POST'])
-@login_required
-def remove_rating(rating_id):
-    """Permite que o usuário remova sua avaliação"""
-    rating = Rating.query.get_or_404(rating_id)
-    if rating.user_id != current_user.id:
-        flash('Você não tem permissão para remover esta avaliação.', 'danger')
-        return redirect(url_for('content.view_content', content_id=rating.content_id))
-
-    db.session.delete(rating)
-    db.session.commit()
-    flash('Avaliação removida com sucesso!', 'success')
-    return redirect(url_for('content.view_content', content_id=rating.content_id))

@@ -3,13 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from .extensions import bcrypt
 from werkzeug.security import check_password_hash as werkzeug_check_password_hash
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 
-from alembic import op
-import sqlalchemy as sa
-from sqlalchemy import text
-
+db = SQLAlchemy()
 
 db = SQLAlchemy()
 
@@ -26,13 +21,10 @@ class Usuario(UserMixin, db.Model):
     _senha_hash = db.Column('usr_password', db.String(255), nullable=False)
     profile_picture = db.Column('usr_profile_picture', db.String(255))
     biografia = db.Column('usr_bio', db.Text)
-    # Papéis: visitante, pesquisador, artista, admin
     role = db.Column('usr_role', db.String(32), default='visitante', nullable=False)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     criado_em = db.Column('usr_created_at', db.DateTime, default=datetime.utcnow, nullable=False)
 
-
-    # Relacionamentos
     seguidores = db.relationship('Follower', foreign_keys='Follower.follower_id', backref='seguidor', lazy='dynamic')
     seguidos = db.relationship('Follower', foreign_keys='Follower.followed_id', backref='seguido', lazy='dynamic')
     mensagens_enviadas = db.relationship('PrivateMessage', foreign_keys='PrivateMessage.sender_id', backref='sender', lazy='dynamic')
@@ -45,7 +37,6 @@ class Usuario(UserMixin, db.Model):
     def __repr__(self):
         return f"<Usuario {self.email}>"
 
-
     def is_administrador(self):
         return self.is_admin
 
@@ -55,7 +46,6 @@ class Usuario(UserMixin, db.Model):
 
     @senha.setter
     def senha(self, senha_plaintext):
-        # Usa Flask-Bcrypt; armazena como string
         self._senha_hash = bcrypt.generate_password_hash(senha_plaintext).decode('utf-8')
 
     def checar_senha(self, senha_plaintext):
@@ -63,9 +53,7 @@ class Usuario(UserMixin, db.Model):
             if bcrypt.check_password_hash(self._senha_hash, senha_plaintext):
                 return True
         except Exception:
-            # Hash pode não ser Bcrypt; tentar fallback
             pass
-        # Fallback para hashes existentes (ex.: werkzeug pbkdf2)
         try:
             return werkzeug_check_password_hash(self._senha_hash, senha_plaintext)
         except Exception:
