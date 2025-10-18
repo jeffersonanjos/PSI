@@ -1,185 +1,115 @@
 {% extends "base.html" %}
-
 {% block title %}Editar {{ content.title }} - MemóriaViva{% endblock %}
 
 {% block content %}
 <div class="container mt-4 mb-4">
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3 style="color: white;">Editar Conteúdo</h3>
-                </div>
-                <div class="card-body">
-                    <form id="editContentForm" method="POST" enctype="multipart/form-data">
-                        
-                        <!-- Título e Tipo -->
-                        <div class="row">
-                            <div class="col-md-8 mb-3">
-                                <label for="title" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="title" name="title" value="{{ content.title }}" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="type" class="form-label">Tipo de Conteúdo</label>
-                                <select class="form-select" id="type" name="type" required>
-                                    <option value="artigo" {{ 'selected' if content.type == 'artigo' else '' }}>Artigo</option>
-                                    <option value="foto" {{ 'selected' if content.type == 'foto' else '' }}>Foto</option>
-                                    <option value="entrevista" {{ 'selected' if content.type == 'entrevista' else '' }}>Entrevista</option>
-                                    <option value="relato" {{ 'selected' if content.type == 'relato' else '' }}>Relato</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Descrição -->
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Breve Descrição</label>
-                            <textarea class="form-control" id="description" name="description" rows="4" required>{{ content.description or '' }}</textarea>
-                        </div>
-
-                        <!-- URL -->
-                        <div class="mb-3">
-                            <label for="url" class="form-label">Link do YouTube</label>
-                            <input type="url" class="form-control" id="url" name="url" value="{{ content.url or '' }}" placeholder="https://youtube.com/watch?v=...">
-                            <small class="text-muted">Se não informar uma capa, a do vídeo será usada quando aplicável.</small>
-                        </div>
-
-                        <!-- Upload de arquivo -->
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Arquivo (PDF, EPUB ou imagem) {% if content.file_path or content.url %}(opcional){% endif %}</label>
-                            <input type="file" class="form-control" id="file" name="file" accept=".pdf,.epub,.jpg,.jpeg,.png,.webp">
-                        </div>
-
-                        <!-- Capa -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="thumbnail" class="form-label">URL da Capa (opcional)</label>
-                                <input type="url" class="form-control" id="thumbnail" name="thumbnail" value="{{ content.thumbnail or '' }}">
-                            </div>
-
-                            <div class="col-md-6 mb-3 text-center">
-                                <label class="form-label">Alterar Capa (upload opcional)</label>
-                                
-                                <!-- Prévia -->
-                                <div class="mb-2">
-                                    <img 
-                                        id="thumbnail_preview"
-                                        src="{{ content.thumbnail or url_for('static', filename='img/default_cover.png') }}"
-                                        alt="Prévia da capa"
-                                        class="img-fluid rounded border"
-                                        style="max-height:180px; object-fit:cover; background-color:#f8f9fa;"
-                                    >
-                                </div>
-
-                                <!-- Botão remover -->
-                                <button type="button" id="removeThumbnailBtn" class="btn btn-sm btn-danger mb-2">
-                                    Remover capa
-                                </button>
-
-                                <!-- Input de upload -->
-                                <input 
-                                    type="file" 
-                                    class="form-control" 
-                                    id="thumbnail_file" 
-                                    name="thumbnail_file" 
-                                    accept=".jpg,.jpeg,.png,.webp"
-                                    onchange="previewThumbnail(event)"
-                                >
-
-                                <!-- Campo oculto -->
-                                <input type="hidden" id="remove_thumbnail" name="remove_thumbnail" value="false">
-
-                                <small class="text-muted d-block mt-1">
-                                    Selecione uma nova imagem ou clique em “Remover capa” para limpar.
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Data -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="release_date" class="form-label">Data de Publicação</label>
-                                <input type="date" class="form-control" id="release_date" name="release_date" 
-                                    value="{{ content.release_date.strftime('%Y-%m-%d') if content.release_date else '' }}">
-                            </div>
-                        </div>
-
-                        <!-- Botões -->
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('content.view_content', content_id=content.id) }}" class="btn btn-secondary">
-                                Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-primary" id="saveChangesBtn">
-                                Salvar Alterações
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm rounded-4 border-0">
+        <div class="card-header bg-success text-white text-center rounded-top-4 py-3">
+          <h4 class="mb-0 fw-semibold">Editar Obra</h4>
         </div>
+
+        <div class="card-body p-4">
+          <form id="editContentForm" method="POST" enctype="multipart/form-data">
+            
+            <!-- Título e Tipo -->
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="title" class="form-label fw-semibold">Título</label>
+                <input type="text" class="form-control rounded-3 shadow-sm"
+                       id="title" name="title" value="{{ content.title }}" required>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="type" class="form-label fw-semibold">Tipo</label>
+                <select class="form-select rounded-3 shadow-sm" id="type" name="type" required>
+                  <option value="artigo" {{ 'selected' if content.type == 'artigo' else '' }}>Artigo</option>
+                  <option value="foto" {{ 'selected' if content.type == 'foto' else '' }}>Foto</option>
+                  <option value="entrevista" {{ 'selected' if content.type == 'entrevista' else '' }}>Entrevista</option>
+                  <option value="relato" {{ 'selected' if content.type == 'relato' else '' }}>Relato</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Descrição -->
+            <div class="mb-3">
+              <label for="description" class="form-label fw-semibold">Breve Descrição</label>
+              <textarea class="form-control rounded-3 shadow-sm" id="description" name="description" rows="4" required>{{ content.description or '' }}</textarea>
+            </div>
+
+            <!-- Link do YouTube -->
+            <div class="mb-3">
+              <label for="url" class="form-label fw-semibold">Link do YouTube</label>
+              <input type="url" class="form-control rounded-3 shadow-sm" id="url" name="url"
+                     value="{{ content.url or '' }}" placeholder="https://youtube.com/watch?v=...">
+              <small class="text-muted">Link do YouTube relacionado à obra</small>
+            </div>
+
+            <!-- Upload de arquivo -->
+            <div class="mb-3">
+              <label for="file" class="form-label fw-semibold">
+                Arquivo da Obra (PDF ou EPUB)
+                <span class="text-muted small">(opcional se houver link do YouTube)</span>
+              </label>
+              <input type="file" class="form-control rounded-3 shadow-sm"
+                     id="file" name="file" accept=".pdf,.epub">
+              <small class="text-muted">Formatos aceitos: PDF, EPUB. Arquivo ou YouTube é obrigatório.</small>
+            </div>
+
+            <!-- URL da capa e Data -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="thumbnail" class="form-label fw-semibold">URL da Capa (opcional)</label>
+                <input type="url" class="form-control rounded-3 shadow-sm"
+                       id="thumbnail" name="thumbnail"
+                       value="{{ content.thumbnail or '' }}" placeholder="https://...">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="release_date" class="form-label fw-semibold">Data de Publicação (opcional)</label>
+                <input type="date" class="form-control rounded-3 shadow-sm"
+                       id="release_date" name="release_date"
+                       value="{{ content.release_date.strftime('%Y-%m-%d') if content.release_date else '' }}">
+              </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{{ url_for('content.view_content', content_id=content.id) }}" class="btn btn-secondary rounded-pill px-4">
+                Cancelar
+              </a>
+              <button type="submit" class="btn btn-success rounded-pill px-5" id="saveChangesBtn">
+                Salvar Alterações
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<!-- ✅ Scripts -->
 <script>
-const defaultCover = "{{ url_for('static', filename='img/default_cover.png') }}";
-
-function previewThumbnail(event) {
-    const preview = document.getElementById('thumbnail_preview');
-    const removeInput = document.getElementById('remove_thumbnail');
-    const file = event.target.files[0];
-
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-        removeInput.value = 'false';
-    }
-}
-
-document.getElementById('removeThumbnailBtn').addEventListener('click', function(e) {
-    e.preventDefault();
-    const preview = document.getElementById('thumbnail_preview');
-    const removeInput = document.getElementById('remove_thumbnail');
-    const fileInput = document.getElementById('thumbnail_file');
-    const urlInput = document.getElementById('thumbnail');
-
-    preview.src = defaultCover;
-    removeInput.value = 'true';
-    fileInput.value = '';
-    urlInput.value = '';
-
-    this.textContent = "Capa removida";
-    this.disabled = true;
-    this.classList.add('opacity-75');
-});
-
-document.getElementById('editContentForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const form = e.target;
-    const formData = new FormData(form);
-    const btn = document.getElementById('saveChangesBtn');
-    btn.disabled = true;
-    btn.textContent = "Salvando...";
-
-    try {
-        const response = await fetch(window.location.pathname, { method: "POST", body: formData });
-
-        if (response.ok) {
-            btn.textContent = "Salvo!";
-            setTimeout(() => window.location.href = "{{ url_for('content.list_content') }}", 1000);
-        } else {
-            throw new Error("Erro ao salvar alterações.");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Erro ao salvar alterações.");
-        btn.disabled = false;
-        btn.textContent = "Salvar Alterações";
-    }
+document.getElementById('editContentForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const btn = document.getElementById('saveChangesBtn');
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Salvando...';
+  
+  try {
+    const response = await fetch(window.location.pathname, { method: "POST", body: formData });
+    if (response.ok) {
+      btn.innerHTML = "✅ Salvo!";
+      setTimeout(() => window.location.href = "{{ url_for('content.list_content') }}", 1000);
+    } else throw new Error("Erro ao salvar alterações.");
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao salvar alterações.");
+    btn.disabled = false;
+    btn.textContent = "Salvar Alterações";
+  }
 });
 </script>
 {% endblock %}

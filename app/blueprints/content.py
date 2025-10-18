@@ -173,10 +173,6 @@ def create_content():
 
     return render_template('content/create.html')
 
-
-# ============================================================
-# EDITAR CONTEÚDO
-# ============================================================
 @content_bp.route('/edit/<int:content_id>', methods=['GET', 'POST'])
 @login_required
 def edit_content(content_id):
@@ -184,11 +180,15 @@ def edit_content(content_id):
     content = Content.query.get_or_404(content_id)
 
     if request.method == 'POST':
+        from ..utils.helpers import parse_date
+
         content.title = request.form.get('title')
         content.description = request.form.get('description')
         content.url = request.form.get('url')
         content.type = request.form.get('type')
-        content.release_date = request.form.get('release_date') or None
+
+        release_date = request.form.get('release_date')
+        content.release_date = parse_date(release_date) if release_date else None
 
         remove_thumbnail = request.form.get('remove_thumbnail') == 'true'
         thumbnail_file = request.files.get('thumbnail_file')
@@ -221,12 +221,16 @@ def edit_content(content_id):
         elif thumbnail_url:
             content.thumbnail = thumbnail_url
 
-        db.session.commit()
-        flash("Conteúdo atualizado com sucesso!", "success")
-        return jsonify(success=True, new_thumbnail_url=content.thumbnail or url_for('static', filename='img/default_cover.png'))
+        try:
+            db.session.commit()
+            flash("Conteúdo atualizado com sucesso!", "success")
+            return jsonify(success=True, new_thumbnail_url=content.thumbnail or url_for('static', filename='img/default_cover.png'))
+        except Exception as e:
+            db.session.rollback()
+            print(f"Erro ao salvar alterações: {e}")
+            return jsonify(success=False, error=str(e)), 500
 
     return render_template('content/edit.html', content=content)
-
 
 # ============================================================
 # DOWNLOAD
@@ -304,3 +308,27 @@ def delete_content(content_id):
         flash(f'Erro ao deletar conteúdo: {str(e)}', 'danger')
 
     return redirect(url_for('content.list_content'))
+
+# ============================================================
+# REMOVER AVALIAÇÃO (UNRATE)
+# ============================================================
+@content_bp.route('/remove_rating/<int:rating_id>', methods=['POST'])
+@login_required
+def remove_rating(rating_id):
+    """Remove uma avaliação existente"""
+    rating = Rating.query.get_or_404(rating_id)
+
+    # Garante que o usuário só possa remover a própria avaliação
+    if rating.user_id != current_user.id:
+        flash('Você não tem permissão para remover esta avaliação.', 'danger')
+        return redirect(url_for('content.view_content', content_id=rating.content_id))
+
+    try:
+        db.session.delete(rating)
+        db.session.commit()
+        flash('Avaliação removida com sucesso!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao remover avaliação: {str(e)}', 'danger')
+
+    return redirect(url_for('content.view_content', content_id=rating.content_id))

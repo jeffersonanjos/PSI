@@ -4,371 +4,224 @@
 
 {% block content %}
 <div class="container mt-4 mb-4">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0 text-dark">{{ comunidade.name }}</h2>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('comunidade.comunidade') }}" class="btn btn-outline-secondary">Sair</a>
-                </div>
-            </div>
-
-            <p class="text-muted mb-4">{{ comunidade.description or 'Sem descrição.' }}</p>
-
-            <div class="d-flex justify-content-end mb-3">
-                <button id="createPostButton" class="btn btn-primary">Criar Post</button>
-            </div>
-
-            <div id="postsContainer" class="mt-2">
-                {% for msg in mensagens %}
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div class="flex-grow-1">
-                                <p class="mb-2">{{ msg.content }}</p>
-                                <small class="text-muted">Postado por {{ msg.usuario.nome }} em {{ msg.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
-                            </div>
-                            {% if current_user.is_authenticated and (current_user.id == msg.user_id or current_user.is_admin or current_user.id == comunidade.owner_id) %}
-                                <button class="btn btn-sm btn-outline-danger delete-post-btn" 
-                                        data-community-id="{{ comunidade.id }}" 
-                                        data-post-id="{{ msg.id }}"
-                                        title="Excluir post">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            {% endif %}
-                        </div>
-                        <div class="d-flex justify-content-between mt-3 align-items-center">
-                            <form class="d-inline like-form" data-community-id="{{ comunidade.id }}" data-post-id="{{ msg.id }}">
-                                <button type="submit" class="btn btn-outline-primary btn-sm">Curtir/Descurtir</button>
-                            </form>
-                            <form class="input-group input-group-sm comment-form" style="max-width: 420px;" data-community-id="{{ comunidade.id }}" data-post-id="{{ msg.id }}">
-                                <input type="text" name="text" class="form-control comment-input" placeholder="Adicionar comentário" style="color: white;">
-                                <button class="btn btn-outline-secondary comment-button" type="submit">Comentar</button>
-                            </form>
-                        </div>
-                        <div class="mt-2">
-                            <small class="text-muted">Curtidas: <span class="like-count" data-post-id="{{ msg.id }}">{{ msg.likes_count() }}</span></small>
-                        </div>
-                        <div class="mt-2">
-                            <small class="text-muted">Comentários (<span class="comments-count" data-post-id="{{ msg.id }}">{{ msg.comments_count() }}</span>)</small>
-                        </div>
-                        <div class="mt-2 comments" data-post-id="{{ msg.id }}">
-                            {% for c in msg.get_comments() %}
-                            <div class="border rounded p-2 mb-2 comment-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <strong>{{ c.user.nome }}</strong>
-                                        <small class="text-muted ms-2">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
-                                        <div class="mt-1">{{ c.text }}</div>
-                                    </div>
-                                    {% if current_user.is_authenticated and (current_user.id == c.user_id or current_user.is_admin or current_user.id == comunidade.owner_id) %}
-                                        <button class="btn btn-sm btn-outline-danger delete-comment-btn" 
-                                                data-comment-id="{{ c.id }}"
-                                                data-post-id="{{ msg.id }}"
-                                                title="Excluir comentário">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0 text-dark">{{ comunidade.name }}</h2>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('comunidade.comunidade') }}" class="btn btn-outline-secondary">Sair</a>
         </div>
+      </div>
+
+      <p class="text-muted mb-4">{{ comunidade.description or 'Sem descrição.' }}</p>
+
+      <div class="d-flex justify-content-end mb-3">
+        <button id="createPostButton" class="btn btn-primary rounded-pill px-3 fw-semibold">
+          Criar Post
+        </button>
+      </div>
+
+      <div id="postsContainer" class="mt-2">
+        {% for msg in mensagens %}
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div class="flex-grow-1">
+                <p class="mb-2">{{ msg.content }}</p>
+                <small class="text-muted">Postado por {{ msg.usuario.nome }} em {{ msg.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+              </div>
+              {% if current_user.is_authenticated and (current_user.id == msg.user_id or current_user.is_admin or current_user.id == comunidade.owner_id) %}
+              <button class="btn btn-sm btn-outline-danger delete-post-btn"
+                data-community-id="{{ comunidade.id }}"
+                data-post-id="{{ msg.id }}"
+                title="Excluir post">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-between mt-3 align-items-center">
+              <form class="d-inline like-form" data-community-id="{{ comunidade.id }}" data-post-id="{{ msg.id }}">
+                <button type="submit" class="btn btn-outline-primary btn-sm rounded-pill">Curtir/Descurtir</button>
+              </form>
+              <form class="input-group input-group-sm comment-form" style="max-width: 420px;"
+                data-community-id="{{ comunidade.id }}" data-post-id="{{ msg.id }}">
+                <input type="text" name="text" class="form-control comment-input" placeholder="Adicionar comentário"
+                  style="color: white;">
+                <button class="btn btn-outline-secondary comment-button" type="submit">Comentar</button>
+              </form>
+            </div>
+
+            <div class="mt-2">
+              <small class="text-muted">Curtidas:
+                <span class="like-count" data-post-id="{{ msg.id }}">{{ msg.likes_count() }}</span></small>
+            </div>
+            <div class="mt-2">
+              <small class="text-muted">Comentários (<span class="comments-count"
+                  data-post-id="{{ msg.id }}">{{ msg.comments_count() }}</span>)</small>
+            </div>
+
+            <div class="mt-2 comments" data-post-id="{{ msg.id }}">
+              {% for c in msg.get_comments() %}
+              <div class="border rounded p-2 mb-2 comment-item">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <strong>{{ c.user.nome }}</strong>
+                    <small class="text-muted ms-2">{{ c.created_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                    <div class="mt-1">{{ c.text }}</div>
+                  </div>
+                  {% if current_user.is_authenticated and (current_user.id == c.user_id or current_user.is_admin or current_user.id == comunidade.owner_id) %}
+                  <button class="btn btn-sm btn-outline-danger delete-comment-btn" data-comment-id="{{ c.id }}"
+                    data-post-id="{{ msg.id }}" title="Excluir comentário">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // --- cria estilo específico do modal (injetado no head) ---
-      const styleId = 'injected-create-post-modal-style';
-      if (!document.getElementById(styleId)) {
-        const s = document.createElement('style');
-        s.id = styleId;
-        s.textContent = `
-          #injectedCreatePostModal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.55);
-            z-index: 2147483647;
-            -webkit-overflow-scrolling: touch;
-          }
-          #injectedCreatePostModal.show { display: flex; }
-          #injectedCreatePostModal .dialog {
-            background: #fff;
+document.addEventListener('DOMContentLoaded', () => {
+
+  // === CSS DO MODAL ===
+  const styleId = 'injected-create-post-modal-style';
+  if (!document.getElementById(styleId)) {
+    const s = document.createElement('style');
+    s.id = styleId;
+    s.textContent = `
+      #injectedCreatePostModal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.55);
+        z-index: 2147483647;
+      }
+      #injectedCreatePostModal.show { display: flex; }
+      #injectedCreatePostModal .dialog {
+        background: #ffffff;
+        width: 100%;
+        max-width: 640px;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        max-height: 85vh;
+        overflow: auto;
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  // remove modal duplicado
+  const existing = document.getElementById('injectedCreatePostModal');
+  if (existing) existing.remove();
+
+  // === ESTRUTURA DO MODAL ===
+  const modal = document.createElement('div');
+  modal.id = 'injectedCreatePostModal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-hidden', 'true');
+  modal.innerHTML = `
+    <div class="dialog" role="document">
+      <h2 style="
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #000000 !important;
+        font-weight: 700;
+        font-size: 1.5rem;
+        text-align: center;
+      ">
+        Criar Nova Postagem
+      </h2>
+
+      <form id="injectedPostForm">
+        <textarea name="mensagem" id="injectedPostContent"
+          class="form-control"
+          placeholder="O que está em sua mente?"
+          required
+          style="
+            min-height: 100px;
             width: 100%;
-            max-width: 640px;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-            position: relative;
-            z-index: 2147483648;
-            max-height: 85vh;
-            overflow: auto;
-          }
-          /* garante que nada na página "corte" o modal (se algum ancestor tiver overflow) */
-          html, body { height: 100%; }
-        `;
-        document.head.appendChild(s);
-      }
-    
-      
-      // --- se já existir (por acaso), remove para evitar duplicata --- 
-      const existing = document.getElementById('injectedCreatePostModal');
-      if (existing) existing.remove();
-    
-      // --- cria o elemento do modal (HTML) ---
-      const modal = document.createElement('div');
-      modal.id = 'injectedCreatePostModal';
-      modal.setAttribute('role', 'dialog');
-      modal.setAttribute('aria-hidden', 'true');
-      modal.innerHTML = `
-        <div class="dialog" role="document">
-          <h2 style="margin-top:0;margin-bottom:10px;0">Criar Nova Postagem</h2>
-          <form id="injectedPostForm">
-            <textarea name="mensagem" id="injectedPostContent" class="form-control" placeholder="O que está em sua mente?" required style="min-height:90px;width:100%;resize:vertical;padding:.7rem;border-radius:.45rem;border:1px solid #e6e6e6;"></textarea>
-            <div style="display:flex;justify-content:space-between;gap:12px;margin-top:12px;">
-              <button type="button" id="injectedCancelBtn" class="btn btn-secondary">Cancelar</button>
-              <button type="submit" class="btn btn-primary">Publicar</button>
-            </div>
-          </form>
+            resize: vertical;
+            padding: .9rem;
+            border-radius: .75rem;
+            border: 1px solid #d0d7de;
+            background-color: #f9fafb;
+            font-size: 0.95rem;
+            color: #111827;
+          "></textarea>
+
+        <div style="display: flex; justify-content: space-between; gap: 16px; margin-top: 14px;">
+          <button type="button" id="injectedCancelBtn"
+            class="btn btn-secondary rounded-pill px-4 fw-semibold">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="btn btn-primary rounded-pill px-4 fw-semibold shadow"
+            style="background: linear-gradient(135deg, #4F46E5, #3B82F6); border: none;">
+            Publicar
+          </button>
         </div>
-      `;
-    
-      // --- append no final do body (garante que estará acima de tudo) ---
-      document.body.appendChild(modal);
-    
-      // --- referências ---
-      const openButton = document.getElementById('createPostButton');
-      const cancelBtn = document.getElementById('injectedCancelBtn');
-      const postForm = document.getElementById('injectedPostForm');
-      const postTextarea = document.getElementById('injectedPostContent');
-    
-      // debug: lista elementos com z-index alto (ajuda a identificar bloqueadores)
-      const blockers = Array.from(document.querySelectorAll('body *')).filter(el => {
-        try {
-          const cs = window.getComputedStyle(el);
-          const z = cs.zIndex;
-          return z !== 'auto' && !isNaN(Number(z)) && Number(z) > 2000 && !el.closest('#injectedCreatePostModal');
-        } catch (e) { return false; }
-      });
-      if (blockers.length) console.info('[modal-debug] elementos com z-index > 2000:', blockers);
-    
-      // funções abrir/fechar
-      const openModal = () => {
-        modal.classList.add('show');
-        modal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
-        // foco no textarea
-        setTimeout(()=> postTextarea.focus(), 50);
-      };
-      const closeModal = () => {
-        modal.classList.remove('show');
-        modal.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
-        postTextarea.value = '';
-      };
-    
-      // evento do botão que abre (se existir)
-      if (openButton) {
-        openButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          openModal();
-        });
-      } else {
-        console.warn('[modal-debug] botão #createPostButton não encontrado.');
-      }
-    
-      // cancelar e clique fora
-      cancelBtn.addEventListener('click', closeModal);
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-      document.addEventListener('keydown', (e)=> {
-        if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
-      });
-    
-      // submit do form: mantém sua lógica (ajuste se necessário)
-      postForm.addEventListener('submit', async (evt) => {
-        evt.preventDefault();
-        const data = new URLSearchParams(new FormData(postForm));
-        try {
-          const res = await fetch(window.location.pathname, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            body: data
-          });
-          if (res.redirected) {
-            window.location.href = res.url;
-            return;
-          }
-          if (res.ok) {
-            window.location.reload();
-          } else {
-            alert('Erro ao criar post.');
-          }
-        } catch (err) {
-          console.error('[modal-submit]', err);
-          alert('Erro de rede ao criar post.');
-        }
-      });
-    
-      // --- pequena verificação final (mostra estilos computados) ---
-      console.log('[modal-debug] modal injetado e anexado a body. computed styles:', getComputedStyle(modal));
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
 
-      // ==========================
-      // Likes e Comentários (AJAX)
-      // ==========================
-      const postsContainer = document.getElementById('postsContainer');
-      if (postsContainer) {
-        // Like submit
-        postsContainer.addEventListener('submit', async (e) => {
-          const form = e.target.closest('.like-form');
-          if (!form) return;
-          e.preventDefault();
-          const communityId = form.getAttribute('data-community-id');
-          const postId = form.getAttribute('data-post-id');
-          try {
-            const res = await fetch(`/comunidade/${communityId}/post/${postId}/like`, {
-              method: 'POST',
-              headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            });
-            if (!res.ok) throw new Error('Falha ao curtir');
-            const data = await res.json();
-            const countEl = document.querySelector(`.like-count[data-post-id="${postId}"]`);
-            if (countEl && typeof data.likes_count === 'number') {
-              countEl.textContent = String(data.likes_count);
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        });
+  // === FUNCIONALIDADE DO MODAL ===
+  const openButton = document.getElementById('createPostButton');
+  const cancelBtn = modal.querySelector('#injectedCancelBtn');
+  const postForm = modal.querySelector('#injectedPostForm');
+  const postTextarea = modal.querySelector('#injectedPostContent');
 
-        // Comment submit
-        postsContainer.addEventListener('submit', async (e) => {
-          const form = e.target.closest('.comment-form');
-          if (!form) return;
-          e.preventDefault();
-          const communityId = form.getAttribute('data-community-id');
-          const postId = form.getAttribute('data-post-id');
-          const input = form.querySelector('.comment-input');
-          const text = (input?.value || '').trim();
-          if (!text) return;
-          try {
-            const body = new URLSearchParams();
-            body.set('text', text);
-            const res = await fetch(`/comunidade/${communityId}/post/${postId}/comment`, {
-              method: 'POST',
-              headers: { 'X-Requested-With': 'XMLHttpRequest' },
-              body
-            });
-            if (!res.ok) throw new Error('Falha ao comentar');
-            const data = await res.json();
-            if (data && data.success) {
-              // Atualiza contagem
-              const countEl = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
-              if (countEl && typeof data.comments_count === 'number') {
-                countEl.textContent = String(data.comments_count);
-              }
-              // Anexa novo comentário
-              const commentsContainer = document.querySelector(`.comments[data-post-id="${postId}"]`);
-              if (commentsContainer && data.comment) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'border rounded p-2 mb-2 comment-item';
-                wrapper.innerHTML = `
-                  <div class="d-flex justify-content-between">
-                    <strong>${data.comment.author}</strong>
-                    <small class="text-muted">${data.comment.created_at}</small>
-                  </div>
-                  <div></div>
-                `;
-                wrapper.querySelector('div:last-child').textContent = data.comment.text;
-                commentsContainer.prepend(wrapper);
-              }
-              if (input) input.value = '';
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        });
-      }
-      
-      // --- Excluir post ---
-      postsContainer.addEventListener('click', async (e) => {
-        const btn = e.target.closest('.delete-post-btn');
-        if (!btn) return;
-        
-        if (!confirm('Tem certeza que deseja excluir este post?')) return;
-        
-        const communityId = btn.getAttribute('data-community-id');
-        const postId = btn.getAttribute('data-post-id');
-        
-        try {
-          const res = await fetch(`/comunidade/${communityId}/post/${postId}/delete`, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-          });
-          
-          if (!res.ok) throw new Error('Falha ao excluir post');
-          
-          const data = await res.json();
-          if (data && data.success) {
-            // Remove o card do post
-            const card = btn.closest('.card');
-            if (card) card.remove();
-            alert('Post excluído com sucesso!');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('Erro ao excluir post');
-        }
+  const openModal = () => {
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => postTextarea.focus(), 50);
+  };
+  const closeModal = () => {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    postTextarea.value = '';
+  };
+
+  if (openButton) openButton.addEventListener('click', e => { e.preventDefault(); openModal(); });
+  cancelBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('show')) closeModal(); });
+
+  // === ENVIO DO POST ===
+  postForm.addEventListener('submit', async evt => {
+    evt.preventDefault();
+    const data = new URLSearchParams(new FormData(postForm));
+    try {
+      const res = await fetch(window.location.pathname, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: data
       });
-      
-      // --- Excluir comentário ---
-      postsContainer.addEventListener('click', async (e) => {
-        const btn = e.target.closest('.delete-comment-btn');
-        if (!btn) return;
-        
-        if (!confirm('Tem certeza que deseja excluir este comentário?')) return;
-        
-        const commentId = btn.getAttribute('data-comment-id');
-        const postId = btn.getAttribute('data-post-id');
-        
-        try {
-          const res = await fetch(`/comunidade/comment/${commentId}/delete`, {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-          });
-          
-          if (!res.ok) throw new Error('Falha ao excluir comentário');
-          
-          const data = await res.json();
-          if (data && data.success) {
-            // Remove o comentário
-            const commentItem = btn.closest('.comment-item');
-            if (commentItem) commentItem.remove();
-            
-            // Atualiza contagem
-            const countEl = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
-            if (countEl && typeof data.comments_count === 'number') {
-              countEl.textContent = String(data.comments_count);
-            }
-            
-            alert('Comentário excluído com sucesso!');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('Erro ao excluir comentário');
-        }
-      });
-    });
-    </script>    
+      if (res.redirected) return window.location.href = res.url;
+      if (res.ok) window.location.reload();
+      else alert('Erro ao criar post.');
+    } catch (err) {
+      console.error(err);
+      alert('Erro de rede ao criar post.');
+    }
+  });
+});
+</script>
 {% endblock %}
+
+
